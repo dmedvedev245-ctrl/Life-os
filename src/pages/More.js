@@ -6,7 +6,8 @@ const SECTIONS = [
   { hash: '#/friends', icon: '👥', title: 'Друзья', desc: 'Контакты и общение' },
   { hash: '#/health', icon: '🏃', title: 'Здоровье', desc: 'Сон, вес, энергия' },
   { hash: '#/habits', icon: '✅', title: 'Привычки', desc: 'Ежедневные ритуалы' },
-  { hash: '#/weekly', icon: '📋', title: 'Обзор недели', desc: 'Рефлексия и план' }
+  { hash: '#/weekly', icon: '📋', title: 'Обзор недели', desc: 'Рефлексия и план' },
+  { hash: '#/stats', icon: '📊', title: 'Статистика', desc: 'Графики и тренды' }
 ];
 
 export class MorePage {

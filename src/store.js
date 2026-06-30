@@ -1,3 +1,5 @@
+import { scheduleSyncToCloud } from './supabase.js';
+
 const KEY = 'life_os';
 
 const DEFAULT = {
@@ -72,6 +74,7 @@ function load() {
 
 function save(data) {
   localStorage.setItem(KEY, JSON.stringify(data));
+  scheduleSyncToCloud(data);
 }
 
 export const store = {

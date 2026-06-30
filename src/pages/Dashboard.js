@@ -4,6 +4,8 @@ import { toast } from '../components/Toast.js';
 import { openModal, closeModal } from '../components/Modal.js';
 import { analyzeLife, getApiKey, setApiKey, clearAiCache } from '../ai/advisor.js';
 import { getUpcomingBirthdays, requestNotificationPermission, getNotificationPermission } from '../notifications.js';
+import { exportData, importData } from '../backup.js';
+import { signOut, getCurrentUser } from '../supabase.js';
 
 function formatDate() {
   const days = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
@@ -46,6 +48,10 @@ export class DashboardPage {
     const data = store.getAll();
     const { finance, work, relations, friends, health, goals, dashboard } = data;
 
+    const todayStr = getTodayStr();
+    const todayLog = (health.logs || []).find(l => l.date === todayStr);
+    const todayMood = todayLog?.mood || 0;
+
     const totalDebt = [
       ...(finance.cards || []).map(c => c.debt || 0),
       ...(finance.debts || []).map(d => d.amount || 0)
@@ -66,7 +72,6 @@ export class DashboardPage {
       return Math.floor((Date.now() - new Date(f.last_contact)) / 86400000) > 30;
     }).length;
 
-    const todayLog = (health.logs || []).find(l => l.date === getTodayStr());
     const tasks = dashboard.daily_tasks || [];
 
     const financeSubtext = urgentCard && urgentDays !== null && urgentDays <= 7
@@ -87,12 +92,20 @@ export class DashboardPage {
           <div class="page-subtitle">${formatDate()}</div>
         </div>
         <div style="display:flex; gap:6px; align-items:center;">
+          <button class="icon-btn" id="search-btn" title="Поиск">🔍</button>
           <button class="icon-btn" id="ai-refresh-btn" title="Обновить совет ИИ">✨</button>
           <button class="icon-btn" id="settings-btn" title="Настройки">⚙️</button>
         </div>
       </div>
 
       ${this.renderBirthdayBanner()}
+
+      <div class="quick-mood-bar">
+        <span class="quick-mood-label">Настроение:</span>
+        ${['😫','😕','😐','🙂','😊'].map((e, i) => `
+          <button class="dash-mood-btn ${todayMood === i + 1 ? 'active' : ''}" data-mood="${i + 1}">${e}</button>
+        `).join('')}
+      </div>
 
       <div class="ai-card" id="ai-card">
         <div class="ai-card-header">
@@ -181,6 +194,7 @@ export class DashboardPage {
       card.addEventListener('click', () => navigate(card.dataset.nav));
     });
 
+    el.querySelector('#search-btn').addEventListener('click', () => navigate('#/search'));
     el.querySelector('#add-task-btn').addEventListener('click', () => this.addTask(el));
     el.querySelector('#ai-toggle').addEventListener('click', () => this.toggleAi(el));
     el.querySelector('#ai-refresh-btn').addEventListener('click', () => {
@@ -188,6 +202,21 @@ export class DashboardPage {
       this.loadAi(el, store.getAll());
     });
     el.querySelector('#settings-btn').addEventListener('click', () => this.openSettings());
+
+    el.querySelectorAll('.dash-mood-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const mood = parseInt(btn.dataset.mood);
+        const logs = store.get('health.logs') || [];
+        const idx = logs.findIndex(l => l.date === todayStr);
+        if (idx >= 0) logs[idx] = { ...logs[idx], mood };
+        else logs.push({ date: todayStr, mood });
+        store.set('health.logs', logs);
+        el.querySelectorAll('.dash-mood-btn').forEach(b =>
+          b.classList.toggle('active', parseInt(b.dataset.mood) === mood)
+        );
+        toast(['😫','😕','😐','🙂','😊'][mood - 1]);
+      });
+    });
 
     el.querySelector('#tasks-list').addEventListener('click', e => {
       const cb = e.target.closest('.checkbox');
@@ -287,6 +316,8 @@ export class DashboardPage {
   openSettings() {
     const currentKey = getApiKey();
     const notifPerm = getNotificationPermission();
+    const currentTheme = localStorage.getItem('life_os_theme') || '';
+
     const body = document.createElement('div');
     body.innerHTML = `
       <div style="margin-bottom:20px;">
@@ -299,6 +330,26 @@ export class DashboardPage {
           value="${currentKey ? '••••••••••••' + currentKey.slice(-4) : ''}">
         ${currentKey ? `<div style="font-size:11px; color:var(--success); margin-top:6px;">✓ Ключ сохранён</div>` : ''}
       </div>
+
+      <div style="margin-bottom:20px;">
+        <div class="input-label" style="margin-bottom:8px;">Тема</div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn ${currentTheme !== 'light' ? 'btn-primary' : 'btn-secondary'}" id="theme-dark-btn" style="flex:1;">🌙 Тёмная</button>
+          <button class="btn ${currentTheme === 'light' ? 'btn-primary' : 'btn-secondary'}" id="theme-light-btn" style="flex:1;">☀️ Светлая</button>
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <div class="input-label" style="margin-bottom:8px;">Данные</div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-secondary" style="flex:1;" id="export-btn">📤 Экспорт</button>
+          <label class="btn btn-secondary" style="flex:1; cursor:pointer; justify-content:center;">
+            📥 Импорт
+            <input type="file" id="import-file" accept=".json" style="display:none;">
+          </label>
+        </div>
+      </div>
+
       <div style="margin-bottom:20px;">
         <div class="input-label" style="margin-bottom:6px;">Уведомления о ДР</div>
         <div style="font-size:12px; color:var(--text-secondary); margin-bottom:10px;">
@@ -311,12 +362,71 @@ export class DashboardPage {
             : `<button class="btn btn-secondary btn-sm" id="enable-notif-btn">🔔 Включить уведомления</button>`
         }
       </div>
-      <div>
+
+      <div style="margin-bottom:20px;">
         <div class="input-label" style="margin-bottom:6px;">Главный риск</div>
         <input class="input" id="risk-input" placeholder="Что может пойти не так..."
           value="${store.get('dashboard.main_risk') || ''}">
       </div>
+
+      <div>
+        <div class="input-label" style="margin-bottom:8px;">Аккаунт</div>
+        <div style="font-size:12px; color:var(--text-secondary); margin-bottom:10px;" id="user-email-label">
+          Загрузка...
+        </div>
+        <button class="btn btn-secondary btn-sm" id="logout-btn" style="color:var(--danger); border-color:var(--danger)40;">
+          Выйти из аккаунта
+        </button>
+      </div>
     `;
+
+    body.querySelector('#theme-dark-btn')?.addEventListener('click', () => {
+      localStorage.removeItem('life_os_theme');
+      document.documentElement.removeAttribute('data-theme');
+      body.querySelector('#theme-dark-btn').className = 'btn btn-primary';
+      body.querySelector('#theme-dark-btn').style.flex = '1';
+      body.querySelector('#theme-light-btn').className = 'btn btn-secondary';
+      body.querySelector('#theme-light-btn').style.flex = '1';
+    });
+
+    body.querySelector('#theme-light-btn')?.addEventListener('click', () => {
+      localStorage.setItem('life_os_theme', 'light');
+      document.documentElement.setAttribute('data-theme', 'light');
+      body.querySelector('#theme-light-btn').className = 'btn btn-primary';
+      body.querySelector('#theme-light-btn').style.flex = '1';
+      body.querySelector('#theme-dark-btn').className = 'btn btn-secondary';
+      body.querySelector('#theme-dark-btn').style.flex = '1';
+    });
+
+    body.querySelector('#export-btn')?.addEventListener('click', () => {
+      exportData();
+      toast('Данные экспортированы ✓');
+    });
+
+    body.querySelector('#import-file')?.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        await importData(file);
+        toast('Данные импортированы ✓');
+        closeModal();
+        setTimeout(() => navigate('#/dashboard', { force: true }), 300);
+      } catch (err) {
+        toast(err.message);
+      }
+    });
+
+    getCurrentUser().then(user => {
+      const label = body.querySelector('#user-email-label');
+      if (label) label.textContent = user?.email || 'Гость';
+    });
+
+    body.querySelector('#logout-btn')?.addEventListener('click', async () => {
+      if (!confirm('Выйти из аккаунта?')) return;
+      await signOut();
+      closeModal();
+      navigate('#/auth');
+    });
 
     body.querySelector('#enable-notif-btn')?.addEventListener('click', async () => {
       const result = await requestNotificationPermission();
@@ -332,6 +442,7 @@ export class DashboardPage {
         toast('Разрешение не дано');
       }
     });
+
     openModal({
       title: '⚙️ Настройки',
       content: body,
@@ -343,7 +454,7 @@ export class DashboardPage {
           store.set('dashboard.main_risk', risk);
           closeModal();
           toast('Сохранено ✓');
-          navigate('#/dashboard');
+          navigate('#/dashboard', { force: true });
         }},
         { label: 'Отмена', cls: 'btn-secondary', onClick: () => closeModal() }
       ]

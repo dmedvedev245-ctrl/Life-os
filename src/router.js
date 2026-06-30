@@ -9,8 +9,12 @@ import { HabitsPage } from './pages/Habits.js';
 import { RelationsPage } from './pages/Relations.js';
 import { FriendsPage } from './pages/Friends.js';
 import { WeeklyPage } from './pages/Weekly.js';
+import { SearchPage } from './pages/Search.js';
+import { StatsPage } from './pages/Stats.js';
+import { AuthPage } from './pages/Auth.js';
 
 const ROUTES = {
+  '#/auth': AuthPage,
   '#/dashboard': DashboardPage,
   '#/finance': FinancePage,
   '#/inbox': InboxPage,
@@ -21,7 +25,9 @@ const ROUTES = {
   '#/habits': HabitsPage,
   '#/relations': RelationsPage,
   '#/friends': FriendsPage,
-  '#/weekly': WeeklyPage
+  '#/weekly': WeeklyPage,
+  '#/search': SearchPage,
+  '#/stats': StatsPage
 };
 
 const NAV_ORDER = ['#/dashboard', '#/finance', '#/inbox', '#/goals', '#/more'];
@@ -58,6 +64,8 @@ export function navigate(hash, opts = {}) {
   const el = page.render();
   el.classList.add('page');
   if (animClass) el.classList.add(animClass);
+
+  document.getElementById('bottom-nav').style.display = hash === '#/auth' ? 'none' : '';
 
   container.innerHTML = '';
   container.appendChild(el);

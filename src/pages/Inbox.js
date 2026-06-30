@@ -11,10 +11,13 @@ const CATEGORIES = [
 const FILTERS = ['all', 'idea', 'task', 'buy', 'other'];
 const FILTER_LABELS = { all: 'Все', idea: 'Идеи', task: 'Задачи', buy: 'Покупки', other: 'Другое' };
 
+function getTodayStr() { return new Date().toISOString().split('T')[0]; }
+
 export class InboxPage {
   constructor() {
     this.selectedCat = 'other';
     this.activeFilter = 'all';
+    this.showReminder = false;
   }
 
   render() {
@@ -27,6 +30,7 @@ export class InboxPage {
   draw() {
     const items = store.get('inbox') || [];
     const filtered = this.activeFilter === 'all' ? items : items.filter(i => i.category === this.activeFilter);
+    const today = getTodayStr();
 
     this.el.innerHTML = `
       <div class="page-title" style="margin-bottom:16px;">📥 Inbox</div>
@@ -38,7 +42,14 @@ export class InboxPage {
             <button class="cat-btn ${this.selectedCat === c.key ? 'active' : ''}" data-cat="${c.key}">${c.label}</button>
           `).join('')}
         </div>
-        <button class="btn btn-primary btn-full" id="add-inbox-btn" style="margin-top:12px;">Добавить</button>
+        <div style="display:flex; gap:8px; margin-top:12px; align-items:center;">
+          <button class="btn btn-primary" style="flex:1;" id="add-inbox-btn">Добавить</button>
+          <button class="btn btn-ghost btn-sm ${this.showReminder ? 'text-accent' : 'text-muted'}" id="reminder-toggle-btn" title="Добавить напоминание">🔔</button>
+        </div>
+        <div id="reminder-section" style="display:${this.showReminder ? 'flex' : 'none'}; gap:8px; margin-top:10px;">
+          <input class="input" id="reminder-date" type="date" style="flex:1;" min="${today}" value="${today}">
+          <input class="input" id="reminder-time" type="time" style="flex:1;" value="09:00">
+        </div>
       </div>
 
       <div class="filter-tabs" id="filter-tabs">
@@ -61,6 +72,14 @@ export class InboxPage {
     this.el.querySelector('#add-inbox-btn').addEventListener('click', () => this.addItem());
     this.el.querySelector('#inbox-text').addEventListener('keydown', e => {
       if (e.key === 'Enter' && e.ctrlKey) this.addItem();
+    });
+
+    this.el.querySelector('#reminder-toggle-btn').addEventListener('click', () => {
+      this.showReminder = !this.showReminder;
+      const section = this.el.querySelector('#reminder-section');
+      const btn = this.el.querySelector('#reminder-toggle-btn');
+      section.style.display = this.showReminder ? 'flex' : 'none';
+      btn.className = `btn btn-ghost btn-sm ${this.showReminder ? 'text-accent' : 'text-muted'}`;
     });
 
     this.el.querySelectorAll('[data-cat]').forEach(btn => {
@@ -93,12 +112,16 @@ export class InboxPage {
   renderItem(item, idx) {
     const catInfo = CATEGORIES.find(c => c.key === item.category) || CATEGORIES[3];
     const date = new Date(item.created).toLocaleDateString('ru', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    const hasReminder = item.reminder?.date;
+    const reminderStr = hasReminder
+      ? `${item.reminder.date} ${item.reminder.time || '09:00'}`
+      : '';
     return `
       <div class="list-item">
         <div style="font-size:20px; padding-top:2px;">${catInfo.label.split(' ')[0]}</div>
         <div class="list-item-body">
           <div class="list-item-title" style="white-space:pre-wrap; line-height:1.4;">${item.text}</div>
-          <div class="list-item-sub">${date}</div>
+          <div class="list-item-sub">${date}${hasReminder ? ` · 🔔 ${reminderStr}` : ''}</div>
         </div>
         <button class="btn btn-ghost btn-icon text-muted" data-del="${idx}" style="flex-shrink:0;">✕</button>
       </div>
@@ -110,11 +133,16 @@ export class InboxPage {
     const text = textarea.value.trim();
     if (!text) { toast('Введите мысль'); return; }
 
+    const reminderDate = this.el.querySelector('#reminder-date')?.value;
+    const reminderTime = this.el.querySelector('#reminder-time')?.value;
+    const reminder = this.showReminder && reminderDate ? { date: reminderDate, time: reminderTime || '09:00' } : null;
+
     const items = store.get('inbox') || [];
-    items.unshift({ text, category: this.selectedCat, created: Date.now() });
+    items.unshift({ text, category: this.selectedCat, created: Date.now(), reminder });
     store.set('inbox', items);
     textarea.value = '';
+    if (reminder) toast(`Записано ✓ · 🔔 ${reminder.date} ${reminder.time}`);
+    else toast('Записано ✓');
     this.draw();
-    toast('Записано ✓');
   }
 }

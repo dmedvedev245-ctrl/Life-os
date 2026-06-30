@@ -89,7 +89,32 @@ export async function checkBirthdayNotifications() {
   }
 }
 
-// Запрос разрешения (вызывается из настроек)
+export async function checkInboxReminders() {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+  const items = JSON.parse(localStorage.getItem('life_os') || '{}').inbox || [];
+  const now = new Date();
+  const todayStr = now.toISOString().split('T')[0];
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+  const checkKey = `life_os_rem_${todayStr}_${now.getHours()}_${now.getMinutes()}`;
+  if (localStorage.getItem(checkKey)) return;
+  localStorage.setItem(checkKey, '1');
+
+  for (const item of items) {
+    if (!item.reminder?.date || item.reminder.date !== todayStr) continue;
+    const [h, m] = (item.reminder.time || '09:00').split(':').map(Number);
+    const remMin = h * 60 + m;
+    if (currentMinutes >= remMin && currentMinutes <= remMin + 2) {
+      new Notification('⏰ Напоминание', {
+        body: item.text,
+        icon: '/Life-os/favicon.svg',
+        tag: `inbox-${item.created}`,
+      });
+    }
+  }
+}
+
 export async function requestNotificationPermission() {
   if (!('Notification' in window)) return 'unsupported';
   if (Notification.permission === 'granted') return 'granted';

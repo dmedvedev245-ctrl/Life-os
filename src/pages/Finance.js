@@ -339,6 +339,8 @@ export class FinancePage {
     const debts = data.debts || [];
     const assets = data.assets || [];
     const liabilities = data.liabilities || [];
+    const expenses = data.monthly_expenses || [];
+    const income = data.monthly_income || 0;
 
     const allDebts = [
       ...cards.map(c => ({ name: c.bank, amount: c.debt || 0 })),
@@ -348,6 +350,7 @@ export class FinancePage {
     const totalDebt = allDebts.reduce((s, d) => s + d.amount, 0);
     const totalAssets = assets.reduce((s, a) => s + (a.value || 0), 0);
     const totalLiabilities = liabilities.reduce((s, l) => s + (l.amount || 0), 0);
+    const totalExpenses = expenses.reduce((s, e) => s + (e.amount || 0), 0);
     const capital = totalAssets - totalLiabilities - totalDebt;
 
     const colors = ['#6366F1','#22C55E','#F59E0B','#EF4444','#8B5CF6','#EC4899','#14B8A6'];
@@ -435,6 +438,41 @@ export class FinancePage {
         </div>
       </div>
       ` : '<div class="empty-state"><div class="empty-state-icon">📈</div><div class="empty-state-title">Нет данных для аналитики</div></div>'}
+
+      ${expenses.length > 0 ? `
+      <div class="card" style="margin-bottom:12px;">
+        <div class="card-title">💸 Расходы по статьям</div>
+        <div style="margin-top:12px;">
+          ${expenses.map(e => {
+            const pct = totalExpenses > 0 ? Math.round((e.amount / totalExpenses) * 100) : 0;
+            return `
+              <div style="margin-bottom:10px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                  <span class="text-sm">${e.name}</span>
+                  <span class="text-xs text-muted">${fmt(e.amount)} · ${pct}%</span>
+                </div>
+                <div class="progress-bar" style="margin-top:0;">
+                  <div class="progress-fill warning" style="width:${pct}%"></div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+          <div class="divider" style="margin:8px 0;"></div>
+          <div style="display:flex; justify-content:space-between;">
+            <span class="text-secondary">Всего расходов</span>
+            <span style="font-weight:700; color:var(--danger);">${fmt(totalExpenses)}</span>
+          </div>
+          ${income > 0 ? `
+          <div style="display:flex; justify-content:space-between; margin-top:6px;">
+            <span class="text-secondary">% от дохода</span>
+            <span style="font-weight:700; color:${totalExpenses/income > 0.8 ? 'var(--danger)' : totalExpenses/income > 0.6 ? 'var(--warning)' : 'var(--success)'};">
+              ${Math.round((totalExpenses/income)*100)}%
+            </span>
+          </div>
+          ` : ''}
+        </div>
+      </div>
+      ` : ''}
 
       <button class="btn btn-secondary btn-full" id="add-asset-btn" style="margin-top:4px;">+ Добавить актив</button>
       <button class="btn btn-secondary btn-full" id="add-liability-btn" style="margin-top:8px;">+ Добавить обязательство</button>

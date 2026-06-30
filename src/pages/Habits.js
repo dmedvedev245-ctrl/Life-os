@@ -16,6 +16,14 @@ function getLast7Days() {
   });
 }
 
+function getLast30Days() {
+  return Array.from({ length: 30 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (29 - i));
+    return d.toISOString().split('T')[0];
+  });
+}
+
 function calcStreak(completions) {
   if (!completions?.length) return 0;
   const set = new Set(completions);
@@ -36,6 +44,8 @@ function weekPercent(completions) {
 }
 
 export class HabitsPage {
+  constructor() { this.view = '7d'; }
+
   render() {
     const el = document.createElement('div');
     this.el = el;
@@ -52,7 +62,10 @@ export class HabitsPage {
     this.el.innerHTML = `
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
         <div class="page-title">✅ Привычки</div>
-        <button class="btn btn-ghost btn-sm text-accent" id="add-habit-btn">+ Добавить</button>
+        <div style="display:flex; gap:6px;">
+          ${habits.length > 0 ? `<button class="btn btn-ghost btn-sm text-accent" id="view-toggle">${this.view === '7d' ? '30 дн' : '7 дн'}</button>` : ''}
+          <button class="btn btn-ghost btn-sm text-accent" id="add-habit-btn">+ Добавить</button>
+        </div>
       </div>
 
       ${habits.length > 0 ? `
@@ -84,6 +97,11 @@ export class HabitsPage {
     `;
 
     this.el.querySelector('#add-habit-btn')?.addEventListener('click', () => this.addHabit());
+
+    this.el.querySelector('#view-toggle')?.addEventListener('click', () => {
+      this.view = this.view === '7d' ? '30d' : '7d';
+      this.draw();
+    });
 
     this.el.querySelectorAll('[data-suggest]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -120,6 +138,13 @@ export class HabitsPage {
     const color = HABIT_COLORS[i % HABIT_COLORS.length];
     const emoji = h.emoji || '✅';
 
+    const forecastText = pct >= 80 ? '🔥 Формируется' : pct >= 50 ? '📈 Постоянство' : '🔄 Заново';
+    const forecastColor = pct >= 80 ? 'var(--success)' : pct >= 50 ? 'var(--warning)' : 'var(--text-muted)';
+
+    const gridHtml = this.view === '7d'
+      ? this.render7DayGrid(completions, last7, today, i, color)
+      : this.render30DayGrid(completions, today, i, color);
+
     return `
       <div class="habit-card" style="border-left:3px solid ${color}; background:${color}0d;">
         <div class="habit-card-top">
@@ -132,28 +157,53 @@ export class HabitsPage {
             <div class="habit-card-name ${todayDone ? 'done' : ''}">${emoji} ${h.name}</div>
             <div class="habit-card-meta">
               ${streak > 0 ? `<span class="habit-streak-badge">🔥 ${streak} ${streak === 1 ? 'день' : streak < 5 ? 'дня' : 'дней'}</span>` : '<span style="color:var(--text-muted);font-size:12px;">Начни сегодня</span>'}
-              <span class="habit-week-pct" style="color:${color}">${pct}% недели</span>
+              <span class="habit-week-pct" style="color:${color}">${pct}% нед.</span>
             </div>
           </div>
           <button class="btn btn-ghost btn-icon text-muted habit-del-btn" data-del-habit="${i}">✕</button>
         </div>
 
-        <div class="habit-grid-row">
-          ${last7.map(d => {
-            const done = completions.includes(d);
-            const isToday = d === today;
-            return `
-              <div class="habit-dot-wrap">
-                <div class="habit-dot ${done ? 'done' : ''} ${isToday ? 'is-today' : ''}"
-                  style="${done ? `background:${color}; border-color:${color};` : isToday ? `border-color:${color};` : ''}"
-                  data-toggle="${i}" data-day="${d}">
-                  ${done ? '✓' : ''}
-                </div>
-                <div class="habit-dot-label ${isToday ? 'today-label' : ''}">${DAY_LABELS[new Date(d).getDay()]}</div>
+        ${gridHtml}
+
+        <div class="habit-forecast" style="color:${forecastColor}">${forecastText}</div>
+      </div>
+    `;
+  }
+
+  render7DayGrid(completions, last7, today, idx, color) {
+    return `
+      <div class="habit-grid-row">
+        ${last7.map(d => {
+          const done = completions.includes(d);
+          const isToday = d === today;
+          return `
+            <div class="habit-dot-wrap">
+              <div class="habit-dot ${done ? 'done' : ''} ${isToday ? 'is-today' : ''}"
+                style="${done ? `background:${color}; border-color:${color};` : isToday ? `border-color:${color};` : ''}"
+                data-toggle="${idx}" data-day="${d}">
+                ${done ? '✓' : ''}
               </div>
-            `;
-          }).join('')}
-        </div>
+              <div class="habit-dot-label ${isToday ? 'today-label' : ''}">${DAY_LABELS[new Date(d + 'T12:00:00').getDay()]}</div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+  }
+
+  render30DayGrid(completions, today, idx, color) {
+    const last30 = getLast30Days();
+    return `
+      <div class="habit-month-grid">
+        ${last30.map(d => {
+          const done = completions.includes(d);
+          const isToday = d === today;
+          return `
+            <div class="habit-month-dot ${done ? 'done' : ''} ${isToday ? 'today' : ''}"
+              style="${done ? `background:${color}; border-color:${color};` : isToday ? `border-color:${color}; border-width:2px;` : ''}"
+              data-toggle="${idx}" data-day="${d}" title="${d}"></div>
+          `;
+        }).join('')}
       </div>
     `;
   }
