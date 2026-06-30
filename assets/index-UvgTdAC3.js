@@ -19,17 +19,19 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
   "important": "Что сейчас самое важное",
   "warning": "Какая проблема начинает появляться (или null если нет)",
   "improve": "Одна конкретная рекомендация по улучшению"
-}`}async function _(e){let t=p();if(!t)return null;let n=JSON.parse(localStorage.getItem(d)||`{}`);if(n.date===h()&&n.result)return n.result;let r=g(e),i=await fetch(`https://api.anthropic.com/v1/messages`,{method:`POST`,headers:{"Content-Type":`application/json`,"x-api-key":t,"anthropic-version":`2023-06-01`,"anthropic-dangerous-direct-browser-access":`true`},body:JSON.stringify({model:`claude-haiku-4-5-20251001`,max_tokens:500,system:`Ты персональный советник. Анализируй данные человека и давай конкретные, поддерживающие советы. Отвечай ТОЛЬКО валидным JSON без markdown.`,messages:[{role:`user`,content:r}]})});if(!i.ok)throw Error(`API error: ${i.status}`);let a=(await i.json()).content[0].text.trim(),o=JSON.parse(a);return localStorage.setItem(d,JSON.stringify({date:h(),result:o})),o}function v(){localStorage.removeItem(d)}function ee(){let e=[`Воскресенье`,`Понедельник`,`Вторник`,`Среда`,`Четверг`,`Пятница`,`Суббота`],t=[`января`,`февраля`,`марта`,`апреля`,`мая`,`июня`,`июля`,`августа`,`сентября`,`октября`,`ноября`,`декабря`],n=new Date;return`${e[n.getDay()]}, ${n.getDate()} ${t[n.getMonth()]}`}function y(){return new Date().toISOString().split(`T`)[0]}function b(e){return e?Math.ceil((new Date(e)-new Date)/864e5):null}function x(e){return Number(e||0).toLocaleString(`ru`)+` ₽`}var S={finance:{color:`#22C55E`,bg:`rgba(34,197,94,0.06)`},work:{color:`#6366F1`,bg:`rgba(99,102,241,0.06)`},relations:{color:`#EF4444`,bg:`rgba(239,68,68,0.06)`},friends:{color:`#F97316`,bg:`rgba(249,115,22,0.06)`},health:{color:`#10B981`,bg:`rgba(16,185,129,0.06)`},energy:{color:`#8B5CF6`,bg:`rgba(139,92,246,0.06)`}};function C(e){let t=S[e];return`border-left: 3px solid ${t.color}; background: ${t.bg};`}var w=class{render(){let e=document.createElement(`div`);this.el=e;let t=a.getAll(),{finance:n,work:r,relations:i,friends:o,health:s,goals:c,dashboard:l}=t,u=[...(n.cards||[]).map(e=>e.debt||0),...(n.debts||[]).map(e=>e.amount||0)].reduce((e,t)=>e+t,0),d=(n.cards||[]).filter(e=>e.grace_period_end).sort((e,t)=>new Date(e.grace_period_end)-new Date(t.grace_period_end))[0],f=d?b(d.grace_period_end):null,p=i.next_date?b(i.next_date):null,m=i.last_date?Math.floor((Date.now()-new Date(i.last_date))/864e5):null,h=(o||[]).filter(e=>e.last_contact?Math.floor((Date.now()-new Date(e.last_contact))/864e5)>30:!0).length,g=(s.logs||[]).find(e=>e.date===y()),_=l.daily_tasks||[],w=d&&f!==null&&f<=7?`⚡ Закрыть ${d.bank} через ${f} дн.`:u>0?`Общий долг: ${x(u)}`:`Долгов нет`,T=r.plan>0?Math.round(r.fact/r.plan*100):0,E=g?.energy?`<span style="color:${S.energy.color}">${`●`.repeat(g.energy)}</span><span style="color:var(--border)">${`●`.repeat(5-g.energy)}</span>`:`<span style="color:var(--text-muted)">● ● ● ● ●</span>`;return e.innerHTML=`
+}`}async function _(e){let t=p();if(!t)return null;let n=JSON.parse(localStorage.getItem(d)||`{}`);if(n.date===h()&&n.result)return n.result;let r=g(e),i=await fetch(`https://api.anthropic.com/v1/messages`,{method:`POST`,headers:{"Content-Type":`application/json`,"x-api-key":t,"anthropic-version":`2023-06-01`,"anthropic-dangerous-direct-browser-access":`true`},body:JSON.stringify({model:`claude-haiku-4-5-20251001`,max_tokens:500,system:`Ты персональный советник. Анализируй данные человека и давай конкретные, поддерживающие советы. Отвечай ТОЛЬКО валидным JSON без markdown.`,messages:[{role:`user`,content:r}]})});if(!i.ok)throw Error(`API error: ${i.status}`);let a=(await i.json()).content[0].text.trim(),o=JSON.parse(a);return localStorage.setItem(d,JSON.stringify({date:h(),result:o})),o}function ee(){localStorage.removeItem(d)}function v(){return new Date().toISOString().split(`T`)[0]}function y(e){if(!e)return null;let t=new Date,n=new Date(e),r=new Date(t.getFullYear(),n.getMonth(),n.getDate());return r<t&&r.setFullYear(t.getFullYear()+1),Math.ceil((r-t)/864e5)}function b(e){if(!e)return null;let t=new Date(e),n=new Date,r=n.getFullYear()-t.getFullYear(),i=n.getMonth()-t.getMonth();return(i<0||i===0&&n.getDate()<t.getDate())&&r--,r}function x(e=7){return(a.get(`friends`)||[]).filter(e=>e.birthday).map(e=>({name:e.name,birthday:e.birthday,daysLeft:y(e.birthday),age:b(e.birthday),emoji:e.emoji||`🎂`,photo:e.photo||null})).filter(t=>t.daysLeft!==null&&t.daysLeft<=e).sort((e,t)=>e.daysLeft-t.daysLeft)}async function te(e,t,n){if(!(`Notification`in window)||Notification.permission===`denied`||(Notification.permission==="default"&&await Notification.requestPermission(),Notification.permission!==`granted`))return;let r=t===0?`🎂 Сегодня день рождения — ${e}!`:`🎂 Через ${t} ${t===1?`день`:`дня`} ДР — ${e}`,i=t===0?`Не забудь поздравить!${n===null?``:` Исполняется ${n+1} лет.`}`:`Запланируй поздравление заранее.`;new Notification(r,{body:i,icon:`/Life-os/favicon.svg`,badge:`/Life-os/favicon.svg`,tag:`birthday-${e}-${v()}`})}async function ne(){let e=v();if(localStorage.getItem(`life_os_bd_checked`)===e)return;localStorage.setItem(`life_os_bd_checked`,e);let t=x(3);if(t.length){Notification.permission==="default"&&await Notification.requestPermission();for(let e of t)await te(e.name,e.daysLeft,e.age)}}async function S(){return`Notification`in window?Notification.permission===`granted`?`granted`:await Notification.requestPermission():`unsupported`}function re(){return`Notification`in window?Notification.permission:`unsupported`}function ie(){let e=[`Воскресенье`,`Понедельник`,`Вторник`,`Среда`,`Четверг`,`Пятница`,`Суббота`],t=[`января`,`февраля`,`марта`,`апреля`,`мая`,`июня`,`июля`,`августа`,`сентября`,`октября`,`ноября`,`декабря`],n=new Date;return`${e[n.getDay()]}, ${n.getDate()} ${t[n.getMonth()]}`}function ae(){return new Date().toISOString().split(`T`)[0]}function C(e){return e?Math.ceil((new Date(e)-new Date)/864e5):null}function w(e){return Number(e||0).toLocaleString(`ru`)+` ₽`}var T={finance:{color:`#22C55E`,bg:`rgba(34,197,94,0.06)`},work:{color:`#6366F1`,bg:`rgba(99,102,241,0.06)`},relations:{color:`#EF4444`,bg:`rgba(239,68,68,0.06)`},friends:{color:`#F97316`,bg:`rgba(249,115,22,0.06)`},health:{color:`#10B981`,bg:`rgba(16,185,129,0.06)`},energy:{color:`#8B5CF6`,bg:`rgba(139,92,246,0.06)`}};function E(e){let t=T[e];return`border-left: 3px solid ${t.color}; background: ${t.bg};`}var D=class{render(){let e=document.createElement(`div`);this.el=e;let t=a.getAll(),{finance:n,work:r,relations:i,friends:o,health:s,goals:c,dashboard:l}=t,u=[...(n.cards||[]).map(e=>e.debt||0),...(n.debts||[]).map(e=>e.amount||0)].reduce((e,t)=>e+t,0),d=(n.cards||[]).filter(e=>e.grace_period_end).sort((e,t)=>new Date(e.grace_period_end)-new Date(t.grace_period_end))[0],f=d?C(d.grace_period_end):null,p=i.next_date?C(i.next_date):null,m=i.last_date?Math.floor((Date.now()-new Date(i.last_date))/864e5):null,h=(o||[]).filter(e=>e.last_contact?Math.floor((Date.now()-new Date(e.last_contact))/864e5)>30:!0).length,g=(s.logs||[]).find(e=>e.date===ae()),_=l.daily_tasks||[],v=d&&f!==null&&f<=7?`⚡ Закрыть ${d.bank} через ${f} дн.`:u>0?`Общий долг: ${w(u)}`:`Долгов нет`,y=r.plan>0?Math.round(r.fact/r.plan*100):0,b=g?.energy?`<span style="color:${T.energy.color}">${`●`.repeat(g.energy)}</span><span style="color:var(--border)">${`●`.repeat(5-g.energy)}</span>`:`<span style="color:var(--text-muted)">● ● ● ● ●</span>`;return e.innerHTML=`
       <div class="dash-header">
         <div>
           <div class="page-title">Life OS</div>
-          <div class="page-subtitle">${ee()}</div>
+          <div class="page-subtitle">${ie()}</div>
         </div>
         <div style="display:flex; gap:6px; align-items:center;">
           <button class="icon-btn" id="ai-refresh-btn" title="Обновить совет ИИ">✨</button>
           <button class="icon-btn" id="settings-btn" title="Настройки">⚙️</button>
         </div>
       </div>
+
+      ${this.renderBirthdayBanner()}
 
       <div class="ai-card" id="ai-card">
         <div class="ai-card-header">
@@ -43,39 +45,39 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
 
       <div class="grid-2" style="margin-bottom:12px;">
 
-        <div class="card dash-card clickable" style="${C(`finance`)}" data-nav="#/finance">
-          <div class="dash-card-label" style="color:${S.finance.color}">💰 Финансы</div>
-          <div class="dash-card-value">${u>0?x(u):`—`}</div>
-          <div class="dash-card-sub">${w}</div>
+        <div class="card dash-card clickable" style="${E(`finance`)}" data-nav="#/finance">
+          <div class="dash-card-label" style="color:${T.finance.color}">💰 Финансы</div>
+          <div class="dash-card-value">${u>0?w(u):`—`}</div>
+          <div class="dash-card-sub">${v}</div>
         </div>
 
-        <div class="card dash-card clickable" style="${C(`work`)}" data-nav="#/work">
-          <div class="dash-card-label" style="color:${S.work.color}">💼 Работа</div>
-          <div class="dash-card-value">${x(r.sales_today)}</div>
-          <div class="dash-card-sub">${T}% от плана</div>
+        <div class="card dash-card clickable" style="${E(`work`)}" data-nav="#/work">
+          <div class="dash-card-label" style="color:${T.work.color}">💼 Работа</div>
+          <div class="dash-card-value">${w(r.sales_today)}</div>
+          <div class="dash-card-sub">${y}% от плана</div>
         </div>
 
-        <div class="card dash-card clickable" style="${C(`relations`)}" data-nav="#/relations">
-          <div class="dash-card-label" style="color:${S.relations.color}">❤️ Отношения</div>
+        <div class="card dash-card clickable" style="${E(`relations`)}" data-nav="#/relations">
+          <div class="dash-card-label" style="color:${T.relations.color}">❤️ Отношения</div>
           <div class="dash-card-value" style="font-size:16px;">${p===null?`Не запланировано`:`Через ${p} дн.`}</div>
           <div class="dash-card-sub">${m===null?`Добавьте свидание`:`Последнее: ${m} дн. назад`}</div>
         </div>
 
-        <div class="card dash-card clickable" style="${C(`friends`)}${h>0?` border-left-color: var(--warning);`:``}" data-nav="#/friends">
-          <div class="dash-card-label" style="color:${h>0?`var(--warning)`:S.friends.color}">👥 Друзья</div>
+        <div class="card dash-card clickable" style="${E(`friends`)}${h>0?` border-left-color: var(--warning);`:``}" data-nav="#/friends">
+          <div class="dash-card-label" style="color:${h>0?`var(--warning)`:T.friends.color}">👥 Друзья</div>
           <div class="dash-card-value" style="${h>0?`color:var(--warning)`:``}">${h}</div>
           <div class="dash-card-sub">${h>0?`Давно не писал`:`Все в норме ✓`}</div>
         </div>
 
-        <div class="card dash-card clickable" style="${C(`health`)}" data-nav="#/health">
-          <div class="dash-card-label" style="color:${S.health.color}">🏃 Здоровье</div>
+        <div class="card dash-card clickable" style="${E(`health`)}" data-nav="#/health">
+          <div class="dash-card-label" style="color:${T.health.color}">🏃 Здоровье</div>
           <div class="dash-card-value">${g?.sleep?`${g.sleep}ч`:`—`}</div>
           <div class="dash-card-sub">${g?.mood?[`😫`,`😕`,`😐`,`🙂`,`😊`][g.mood-1]+` настроение`:`Заполни дневник`}</div>
         </div>
 
-        <div class="card dash-card clickable" style="${C(`energy`)}" data-nav="#/health">
-          <div class="dash-card-label" style="color:${S.energy.color}">🧠 Энергия</div>
-          <div class="dash-card-value" style="font-size:20px; letter-spacing:2px;">${E}</div>
+        <div class="card dash-card clickable" style="${E(`energy`)}" data-nav="#/health">
+          <div class="dash-card-label" style="color:${T.energy.color}">🧠 Энергия</div>
+          <div class="dash-card-value" style="font-size:20px; letter-spacing:2px;">${b}</div>
           <div class="dash-card-sub">${g?.energy?`${g.energy} из 5`:`Не указана`}</div>
         </div>
 
@@ -112,7 +114,16 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
         <div id="tasks-list">${this.renderTasks(_)}</div>
         ${_.length===0?`<div class="text-muted text-sm" style="text-align:center; padding:12px 0;">Добавьте задачи на сегодня</div>`:``}
       </div>
-    `,e.querySelectorAll(`[data-nav]`).forEach(e=>{e.addEventListener(`click`,()=>$(e.dataset.nav))}),e.querySelector(`#add-task-btn`).addEventListener(`click`,()=>this.addTask(e)),e.querySelector(`#ai-toggle`).addEventListener(`click`,()=>this.toggleAi(e)),e.querySelector(`#ai-refresh-btn`).addEventListener(`click`,()=>{v(),this.loadAi(e,a.getAll())}),e.querySelector(`#settings-btn`).addEventListener(`click`,()=>this.openSettings()),e.querySelector(`#tasks-list`).addEventListener(`click`,t=>{let n=t.target.closest(`.checkbox`);n&&this.toggleTask(parseInt(n.dataset.idx),e);let r=t.target.closest(`[data-del-task]`);r&&this.deleteTask(parseInt(r.dataset.delTask),e)}),this.loadAi(e,t),e}renderTasks(e){return e.length?e.map((e,t)=>`
+    `,e.querySelectorAll(`[data-nav]`).forEach(e=>{e.addEventListener(`click`,()=>$(e.dataset.nav))}),e.querySelector(`#add-task-btn`).addEventListener(`click`,()=>this.addTask(e)),e.querySelector(`#ai-toggle`).addEventListener(`click`,()=>this.toggleAi(e)),e.querySelector(`#ai-refresh-btn`).addEventListener(`click`,()=>{ee(),this.loadAi(e,a.getAll())}),e.querySelector(`#settings-btn`).addEventListener(`click`,()=>this.openSettings()),e.querySelector(`#tasks-list`).addEventListener(`click`,t=>{let n=t.target.closest(`.checkbox`);n&&this.toggleTask(parseInt(n.dataset.idx),e);let r=t.target.closest(`[data-del-task]`);r&&this.deleteTask(parseInt(r.dataset.delTask),e)}),this.loadAi(e,t),e}renderBirthdayBanner(){let e=x(7);return e.length?e.map(e=>{let t=e.daysLeft===0,n=e.daysLeft===1,r=t?`Сегодня день рождения!`:n?`Завтра день рождения`:`Через ${e.daysLeft} дня день рождения`,i=e.age===null?``:` · исполняется ${e.age+1} лет`;return`
+        <div class="birthday-banner ${t?`birthday-today`:``}" data-nav="#/friends">
+          <span class="birthday-icon">🎂</span>
+          <div class="birthday-info">
+            <div class="birthday-name">${e.name}</div>
+            <div class="birthday-sub">${r}${i}</div>
+          </div>
+          ${t?`<span class="birthday-tag">Поздравь!</span>`:``}
+        </div>
+      `}).join(``):``}renderTasks(e){return e.length?e.map((e,t)=>`
       <div class="task-item">
         <div class="checkbox ${e.done?`checked`:``}" data-idx="${t}">${e.done?`✓`:``}</div>
         <span class="task-text ${e.done?`done`:``}">${e.text}</span>
@@ -123,7 +134,7 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
         <label class="input-label">Задача на сегодня</label>
         <input class="input" id="task-input" placeholder="Что нужно сделать?" maxlength="120">
       </div>
-    `;let r=c({title:`Новая задача`,content:n,actions:[{label:`Добавить`,cls:`btn-primary`,onClick:n=>{let r=n.querySelector(`#task-input`).value.trim();r&&(t.push({text:r,done:!1,created:Date.now()}),a.set(`dashboard.daily_tasks`,t),e.querySelector(`#tasks-list`).innerHTML=this.renderTasks(t),u(),o(`Задача добавлена ✓`))}},{label:`Отмена`,cls:`btn-secondary`,onClick:()=>u()}]});setTimeout(()=>r.querySelector(`#task-input`)?.focus(),100)}openSettings(){let e=p(),t=document.createElement(`div`);t.innerHTML=`
+    `;let r=c({title:`Новая задача`,content:n,actions:[{label:`Добавить`,cls:`btn-primary`,onClick:n=>{let r=n.querySelector(`#task-input`).value.trim();r&&(t.push({text:r,done:!1,created:Date.now()}),a.set(`dashboard.daily_tasks`,t),e.querySelector(`#tasks-list`).innerHTML=this.renderTasks(t),u(),o(`Задача добавлена ✓`))}},{label:`Отмена`,cls:`btn-secondary`,onClick:()=>u()}]});setTimeout(()=>r.querySelector(`#task-input`)?.focus(),100)}openSettings(){let e=p(),t=re(),n=document.createElement(`div`);n.innerHTML=`
       <div style="margin-bottom:20px;">
         <div class="input-label" style="margin-bottom:6px;">Claude API ключ</div>
         <div style="font-size:12px; color:var(--text-secondary); margin-bottom:10px;">
@@ -134,12 +145,19 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
           value="${e?`••••••••••••`+e.slice(-4):``}">
         ${e?`<div style="font-size:11px; color:var(--success); margin-top:6px;">✓ Ключ сохранён</div>`:``}
       </div>
+      <div style="margin-bottom:20px;">
+        <div class="input-label" style="margin-bottom:6px;">Уведомления о ДР</div>
+        <div style="font-size:12px; color:var(--text-secondary); margin-bottom:10px;">
+          Браузер уведомит о днях рождения друзей за 3 дня
+        </div>
+        ${t===`granted`?`<div style="font-size:13px; color:var(--success);">✓ Уведомления включены</div>`:t===`denied`?`<div style="font-size:13px; color:var(--danger);">✕ Заблокированы в настройках браузера</div>`:`<button class="btn btn-secondary btn-sm" id="enable-notif-btn">🔔 Включить уведомления</button>`}
+      </div>
       <div>
         <div class="input-label" style="margin-bottom:6px;">Главный риск</div>
         <input class="input" id="risk-input" placeholder="Что может пойти не так..."
           value="${a.get(`dashboard.main_risk`)||``}">
       </div>
-    `,c({title:`⚙️ Настройки`,content:t,actions:[{label:`Сохранить`,cls:`btn-primary`,onClick:e=>{let t=e.querySelector(`#api-key-input`).value.trim();t&&!t.includes(`•`)&&m(t);let n=e.querySelector(`#risk-input`).value.trim();a.set(`dashboard.main_risk`,n),u(),o(`Сохранено ✓`),$(`#/dashboard`)}},{label:`Отмена`,cls:`btn-secondary`,onClick:()=>u()}]}),setTimeout(()=>{e||t.querySelector(`#api-key-input`)?.focus()},100)}toggleAi(e){let t=e.querySelector(`#ai-body`),n=e.querySelector(`#ai-toggle`),r=t.style.display===`none`;t.style.display=r?``:`none`,n.textContent=r?`скрыть`:`показать`}async loadAi(e,t){let n=e.querySelector(`#ai-body`);if(n){if(!p()){n.innerHTML=`
+    `,n.querySelector(`#enable-notif-btn`)?.addEventListener(`click`,async()=>{await S()===`granted`?(o(`Уведомления включены ✓`),n.querySelector(`#enable-notif-btn`).replaceWith(Object.assign(document.createElement(`div`),{style:`font-size:13px; color:var(--success);`,textContent:`✓ Уведомления включены`}))):o(`Разрешение не дано`)}),c({title:`⚙️ Настройки`,content:n,actions:[{label:`Сохранить`,cls:`btn-primary`,onClick:e=>{let t=e.querySelector(`#api-key-input`).value.trim();t&&!t.includes(`•`)&&m(t);let n=e.querySelector(`#risk-input`).value.trim();a.set(`dashboard.main_risk`,n),u(),o(`Сохранено ✓`),$(`#/dashboard`)}},{label:`Отмена`,cls:`btn-secondary`,onClick:()=>u()}]}),setTimeout(()=>{e||n.querySelector(`#api-key-input`)?.focus()},100)}toggleAi(e){let t=e.querySelector(`#ai-body`),n=e.querySelector(`#ai-toggle`),r=t.style.display===`none`;t.style.display=r?``:`none`,n.textContent=r?`скрыть`:`показать`}async loadAi(e,t){let n=e.querySelector(`#ai-body`);if(n){if(!p()){n.innerHTML=`
         <div class="ai-text text-muted">
           Нажмите ⚙️ чтобы добавить API ключ и получать ежедневные советы
         </div>
@@ -150,24 +168,24 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
           ${e.warning?`<div class="ai-insight"><span class="ai-tag" style="color:#F59E0B">Внимание</span>${e.warning}</div>`:``}
           <div class="ai-insight"><span class="ai-tag" style="color:var(--text-secondary)">Совет</span>${e.improve}</div>
         </div>
-      `}catch(e){n.innerHTML=`<div class="ai-text text-muted">Ошибка: ${e.message}</div>`}}}};function T(e){return Number(e||0).toLocaleString(`ru`)+` ₽`}function E(e){return e?Math.ceil((new Date(e)-new Date)/864e5):null}function D(e){if(!e)return`—`;let t=[`янв`,`фев`,`мар`,`апр`,`май`,`июн`,`июл`,`авг`,`сен`,`окт`,`ноя`,`дек`],n=new Date(e);return`${n.getDate()} ${t[n.getMonth()]}`}var te=class{constructor(){this.activeTab=`cards`}render(){let e=document.createElement(`div`);return this.el=e,this.draw(),e}draw(){let e=a.get(`finance`)||{},t=e.cards||[],n=e.debts||[],r=e.monthly_income||0,i=e.monthly_expenses||[],o=e.assets||[],s=e.liabilities||[],c=t.reduce((e,t)=>e+(t.debt||0),0),l=n.reduce((e,t)=>e+(t.amount||0),0),u=i.reduce((e,t)=>e+(t.amount||0),0);o.reduce((e,t)=>e+(t.value||0),0)-s.reduce((e,t)=>e+(t.amount||0),0);let d=r-u;this.el.innerHTML=`
+      `}catch(e){n.innerHTML=`<div class="ai-text text-muted">Ошибка: ${e.message}</div>`}}}};function O(e){return Number(e||0).toLocaleString(`ru`)+` ₽`}function k(e){return e?Math.ceil((new Date(e)-new Date)/864e5):null}function A(e){if(!e)return`—`;let t=[`янв`,`фев`,`мар`,`апр`,`май`,`июн`,`июл`,`авг`,`сен`,`окт`,`ноя`,`дек`],n=new Date(e);return`${n.getDate()} ${t[n.getMonth()]}`}var oe=class{constructor(){this.activeTab=`cards`}render(){let e=document.createElement(`div`);return this.el=e,this.draw(),e}draw(){let e=a.get(`finance`)||{},t=e.cards||[],n=e.debts||[],r=e.monthly_income||0,i=e.monthly_expenses||[],o=e.assets||[],s=e.liabilities||[],c=t.reduce((e,t)=>e+(t.debt||0),0),l=n.reduce((e,t)=>e+(t.amount||0),0),u=i.reduce((e,t)=>e+(t.amount||0),0);o.reduce((e,t)=>e+(t.value||0),0)-s.reduce((e,t)=>e+(t.amount||0),0);let d=r-u;this.el.innerHTML=`
       <div class="page-title" style="margin-bottom:16px;">💰 Финансы</div>
 
       <div class="finance-summary">
         <div class="card-sub" style="margin-bottom:4px;">Общий долг</div>
-        <div class="finance-total">${T(c+l)}</div>
+        <div class="finance-total">${O(c+l)}</div>
         <div style="display:flex; gap:20px; margin-top:12px;">
           <div>
             <div class="text-xs text-muted">Доход</div>
-            <div style="font-size:15px; font-weight:700; color:var(--success);">${T(r)}</div>
+            <div style="font-size:15px; font-weight:700; color:var(--success);">${O(r)}</div>
           </div>
           <div>
             <div class="text-xs text-muted">Расходы</div>
-            <div style="font-size:15px; font-weight:700; color:var(--danger);">${T(u)}</div>
+            <div style="font-size:15px; font-weight:700; color:var(--danger);">${O(u)}</div>
           </div>
           <div>
             <div class="text-xs text-muted">Поток</div>
-            <div style="font-size:15px; font-weight:700; color:${d>=0?`var(--success)`:`var(--danger)`};">${T(d)}</div>
+            <div style="font-size:15px; font-weight:700; color:${d>=0?`var(--success)`:`var(--danger)`};">${O(d)}</div>
           </div>
         </div>
         <button class="btn btn-ghost btn-sm text-accent" id="edit-income-btn" style="margin-top:8px;">✏️ Изменить доход</button>
@@ -183,7 +201,7 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
 
       <div id="tab-content">${this.renderTab(e)}</div>
     `,this.el.querySelectorAll(`.tab`).forEach(e=>{e.addEventListener(`click`,()=>{this.activeTab=e.dataset.tab,this.el.querySelectorAll(`.tab`).forEach(e=>e.classList.remove(`active`)),e.classList.add(`active`),this.el.querySelector(`#tab-content`).innerHTML=this.renderTab(a.get(`finance`)||{}),this.bindTabEvents(a.get(`finance`)||{})})}),this.el.querySelector(`#edit-income-btn`).addEventListener(`click`,()=>this.editIncome()),this.bindTabEvents(e)}renderTab(e){switch(this.activeTab){case`cards`:return this.renderCards(e);case`debts`:return this.renderDebts(e);case`payments`:return this.renderPayments(e);case`forecast`:return this.renderForecast(e);case`analytics`:return this.renderAnalytics(e);default:return``}}renderCards(e){let t=e.cards||[];return t.length?`
-      ${t.map((e,t)=>{let n=E(e.grace_period_end),r=n!==null&&n<=3?`urgent`:n!==null&&n<=7?`warning`:``,i=e.limit?Math.round(e.debt/e.limit*100):0;return`
+      ${t.map((e,t)=>{let n=k(e.grace_period_end),r=n!==null&&n<=3?`urgent`:n!==null&&n<=7?`warning`:``,i=e.limit?Math.round(e.debt/e.limit*100):0;return`
         <div class="credit-card-item ${r}">
           <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
             <div>
@@ -195,15 +213,15 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
           <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
             <div>
               <div class="text-xs text-muted">Долг</div>
-              <div style="font-size:18px; font-weight:700; color:var(--danger);">${T(e.debt)}</div>
+              <div style="font-size:18px; font-weight:700; color:var(--danger);">${O(e.debt)}</div>
             </div>
             <div>
               <div class="text-xs text-muted">Лимит</div>
-              <div style="font-size:15px; font-weight:600;">${T(e.limit)}</div>
+              <div style="font-size:15px; font-weight:600;">${O(e.limit)}</div>
             </div>
             <div>
               <div class="text-xs text-muted">Мин. платёж</div>
-              <div style="font-size:15px; font-weight:600;">${T(e.min_payment)}</div>
+              <div style="font-size:15px; font-weight:600;">${O(e.min_payment)}</div>
             </div>
           </div>
           <div class="progress-bar">
@@ -211,7 +229,7 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
           </div>
           <div style="display:flex; justify-content:space-between; margin-top:4px;">
             <span class="text-xs text-muted">Использовано ${i}%</span>
-            ${e.grace_period_end?`<span class="text-xs text-muted">До ${D(e.grace_period_end)}</span>`:``}
+            ${e.grace_period_end?`<span class="text-xs text-muted">До ${A(e.grace_period_end)}</span>`:``}
           </div>
         </div>
       `}).join(``)}
@@ -238,9 +256,9 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
             ${n===0?`<span class="badge badge-accent">Приоритет #1</span>`:`<span class="badge badge-muted">#${n+1}</span>`}
           </div>
           <div style="display:flex; gap:16px; flex-wrap:wrap;">
-            <div><div class="text-xs text-muted">Долг</div><div style="font-weight:700; color:var(--danger);">${T(e.amount)}</div></div>
+            <div><div class="text-xs text-muted">Долг</div><div style="font-weight:700; color:var(--danger);">${O(e.amount)}</div></div>
             <div><div class="text-xs text-muted">Ставка</div><div style="font-weight:600;">${e.rate||0}%</div></div>
-            <div><div class="text-xs text-muted">Платёж/мес</div><div style="font-weight:600;">${T(e.monthly_payment)}</div></div>
+            <div><div class="text-xs text-muted">Платёж/мес</div><div style="font-weight:600;">${O(e.monthly_payment)}</div></div>
           </div>
           ${e.monthly_payment&&e.amount?`
             <div class="progress-bar" style="margin-top:8px;">
@@ -257,14 +275,14 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
       </div>
       ${i}
       <button class="btn btn-secondary btn-full" id="add-debt-btn" style="margin-top:8px;">+ Добавить долг</button>
-    `}renderPayments(e){let t=e.cards||[],n=e.debts||[],r=new Date,i=[];t.forEach(e=>{e.grace_period_end&&i.push({name:e.bank,date:e.grace_period_end,amount:e.debt,type:`card`})});for(let e=0;e<2;e++)n.forEach(t=>{if(t.payment_day){let n=new Date(r.getFullYear(),r.getMonth()+e,t.payment_day);n>=r&&i.push({name:t.creditor,date:n.toISOString().split(`T`)[0],amount:t.monthly_payment,type:`debt`})}});i.sort((e,t)=>new Date(e.date)-new Date(t.date));let a=i.filter(e=>E(e.date)<=30&&E(e.date)>=-1);return a.length?a.map(e=>{let t=E(e.date),n=t<=3?`red`:t<=7?`yellow`:`green`,r=t<0?`просрочен`:t===0?`сегодня`:`через ${t} дн.`;return`
+    `}renderPayments(e){let t=e.cards||[],n=e.debts||[],r=new Date,i=[];t.forEach(e=>{e.grace_period_end&&i.push({name:e.bank,date:e.grace_period_end,amount:e.debt,type:`card`})});for(let e=0;e<2;e++)n.forEach(t=>{if(t.payment_day){let n=new Date(r.getFullYear(),r.getMonth()+e,t.payment_day);n>=r&&i.push({name:t.creditor,date:n.toISOString().split(`T`)[0],amount:t.monthly_payment,type:`debt`})}});i.sort((e,t)=>new Date(e.date)-new Date(t.date));let a=i.filter(e=>k(e.date)<=30&&k(e.date)>=-1);return a.length?a.map(e=>{let t=k(e.date),n=t<=3?`red`:t<=7?`yellow`:`green`,r=t<0?`просрочен`:t===0?`сегодня`:`через ${t} дн.`;return`
         <div class="payment-item">
           <div class="payment-dot ${n}"></div>
           <div style="flex:1; margin-left:10px;">
             <div style="font-weight:600; font-size:14px;">${e.name}</div>
-            <div class="text-xs text-muted">${D(e.date)} · ${r}</div>
+            <div class="text-xs text-muted">${A(e.date)} · ${r}</div>
           </div>
-          <div style="font-weight:700; color:var(--danger);">${T(e.amount)}</div>
+          <div style="font-weight:700; color:var(--danger);">${O(e.amount)}</div>
         </div>
       `}).join(``):`
       <div class="empty-state">
@@ -272,15 +290,15 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
         <div class="empty-state-title">Нет платежей</div>
         <div class="empty-state-text">Добавьте карты и долги чтобы видеть календарь платежей</div>
       </div>
-    `}renderForecast(e){let t=e.monthly_income||0,n=(e.monthly_expenses||[]).reduce((e,t)=>e+(t.amount||0),0),r=e.cards||[],i=e.debts||[],a=r.reduce((e,t)=>e+(t.min_payment||0),0)+i.reduce((e,t)=>e+(t.monthly_payment||0),0),o=t-n,s=o-a,c=r.filter(e=>e.grace_period_end).sort((e,t)=>new Date(e.grace_period_end)-new Date(t.grace_period_end))[0],l=c?E(c.grace_period_end):null,u=c?Math.max(0,c.debt-o):0,d=i.map(e=>{if(!e.monthly_payment||e.monthly_payment<=0)return null;let t=Math.ceil(e.amount/e.monthly_payment),n=new Date;return n.setMonth(n.getMonth()+t),{name:e.creditor,months:t,date:n.toLocaleDateString(`ru`,{month:`long`,year:`numeric`})}}).filter(Boolean);return`
+    `}renderForecast(e){let t=e.monthly_income||0,n=(e.monthly_expenses||[]).reduce((e,t)=>e+(t.amount||0),0),r=e.cards||[],i=e.debts||[],a=r.reduce((e,t)=>e+(t.min_payment||0),0)+i.reduce((e,t)=>e+(t.monthly_payment||0),0),o=t-n,s=o-a,c=r.filter(e=>e.grace_period_end).sort((e,t)=>new Date(e.grace_period_end)-new Date(t.grace_period_end))[0],l=c?k(c.grace_period_end):null,u=c?Math.max(0,c.debt-o):0,d=i.map(e=>{if(!e.monthly_payment||e.monthly_payment<=0)return null;let t=Math.ceil(e.amount/e.monthly_payment),n=new Date;return n.setMonth(n.getMonth()+t),{name:e.creditor,months:t,date:n.toLocaleDateString(`ru`,{month:`long`,year:`numeric`})}}).filter(Boolean);return`
       <div class="card" style="margin-bottom:12px;">
         <div class="card-title">📊 Денежный поток</div>
         <div style="margin-top:10px; display:flex; flex-direction:column; gap:8px;">
-          <div style="display:flex; justify-content:space-between;"><span class="text-secondary">Доход</span><span style="color:var(--success); font-weight:700;">${T(t)}</span></div>
-          <div style="display:flex; justify-content:space-between;"><span class="text-secondary">Расходы</span><span style="color:var(--danger); font-weight:700;">${T(n)}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span class="text-secondary">Доход</span><span style="color:var(--success); font-weight:700;">${O(t)}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span class="text-secondary">Расходы</span><span style="color:var(--danger); font-weight:700;">${O(n)}</span></div>
           <div class="divider" style="margin:4px 0;"></div>
-          <div style="display:flex; justify-content:space-between;"><span class="text-secondary">Свободные деньги</span><span style="color:${o>=0?`var(--success)`:`var(--danger)`}; font-weight:800; font-size:18px;">${T(o)}</span></div>
-          <div style="display:flex; justify-content:space-between;"><span class="text-secondary">После мин. платежей</span><span style="color:${s>=0?`var(--success)`:`var(--danger)`}; font-weight:700;">${T(s)}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span class="text-secondary">Свободные деньги</span><span style="color:${o>=0?`var(--success)`:`var(--danger)`}; font-weight:800; font-size:18px;">${O(o)}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span class="text-secondary">После мин. платежей</span><span style="color:${s>=0?`var(--success)`:`var(--danger)`}; font-weight:700;">${O(s)}</span></div>
         </div>
       </div>
 
@@ -288,8 +306,8 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
       <div class="card warning-card" style="margin-bottom:12px;">
         <div class="card-title">⚡ Срочно</div>
         <div style="margin-top:8px;">
-          <div style="font-size:15px; font-weight:600;">Сегодня главный приоритет — закрыть карту ${c.bank} ${l===null?``:`до ${D(c.grace_period_end)}`}</div>
-          ${u>0?`<div class="text-secondary text-sm mt-8">Нужно дополнительно заработать: <b style="color:var(--warning);">${T(u)}</b></div>`:`<div class="text-secondary text-sm mt-8" style="color:var(--success);">Денег достаточно ✓</div>`}
+          <div style="font-size:15px; font-weight:600;">Сегодня главный приоритет — закрыть карту ${c.bank} ${l===null?``:`до ${A(c.grace_period_end)}`}</div>
+          ${u>0?`<div class="text-secondary text-sm mt-8">Нужно дополнительно заработать: <b style="color:var(--warning);">${O(u)}</b></div>`:`<div class="text-secondary text-sm mt-8" style="color:var(--success);">Денег достаточно ✓</div>`}
         </div>
       </div>
       `:``}
@@ -323,7 +341,7 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
                   <span class="text-sm">${e.name}</span>
                 </div>
                 <div style="text-align:right;">
-                  <span style="font-weight:700; font-size:14px;">${T(e.amount)}</span>
+                  <span style="font-weight:700; font-size:14px;">${O(e.amount)}</span>
                   <span class="text-xs text-muted" style="margin-left:6px;">${e.pct}%</span>
                 </div>
               </div>
@@ -336,16 +354,16 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
         <div style="margin-top:10px;">
           <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
             <span class="text-secondary">Активы</span>
-            <span style="color:var(--success); font-weight:700;">${T(s)}</span>
+            <span style="color:var(--success); font-weight:700;">${O(s)}</span>
           </div>
           <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
             <span class="text-secondary">Обязательства</span>
-            <span style="color:var(--danger); font-weight:700;">${T(c+o)}</span>
+            <span style="color:var(--danger); font-weight:700;">${O(c+o)}</span>
           </div>
           <div class="divider" style="margin:8px 0;"></div>
           <div style="display:flex; justify-content:space-between;">
             <span style="font-weight:600;">Чистый капитал</span>
-            <span style="font-weight:800; font-size:18px; color:${l>=0?`var(--success)`:`var(--danger)`};">${T(l)}</span>
+            <span style="font-weight:800; font-size:18px; color:${l>=0?`var(--success)`:`var(--danger)`};">${O(l)}</span>
           </div>
         </div>
       </div>
@@ -359,7 +377,7 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
             <div style="margin-bottom:10px;">
               <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
                 <span class="text-sm">${e.name}</span>
-                <span class="text-sm font-bold">${T(e.amount)}</span>
+                <span class="text-sm font-bold">${O(e.amount)}</span>
               </div>
               <div class="progress-bar">
                 <div class="progress-fill danger" style="width:${Math.round(e.amount/o*100)}%"></div>
@@ -398,13 +416,13 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
     `,c({title:`Новый актив`,content:e,actions:[{label:`Добавить`,cls:`btn-primary`,onClick:e=>{let t={name:e.querySelector(`#a-name`).value.trim(),value:parseFloat(e.querySelector(`#a-value`).value)||0};t.name&&(a.update(`finance.assets`,e=>[...e||[],t]),this.draw(),u(),o(`Актив добавлен ✓`))}},{label:`Отмена`,cls:`btn-secondary`,onClick:()=>u()}]})}addLiability(){let e=document.createElement(`div`);e.innerHTML=`
       <div class="input-group"><label class="input-label">Обязательство</label><input class="input" id="l-name" placeholder="Ипотека / рассрочка"></div>
       <div class="input-group"><label class="input-label">Сумма (₽)</label><input class="input" id="l-amount" type="number" placeholder="1000000"></div>
-    `,c({title:`Новое обязательство`,content:e,actions:[{label:`Добавить`,cls:`btn-primary`,onClick:e=>{let t={name:e.querySelector(`#l-name`).value.trim(),amount:parseFloat(e.querySelector(`#l-amount`).value)||0};t.name&&(a.update(`finance.liabilities`,e=>[...e||[],t]),this.draw(),u(),o(`Обязательство добавлено ✓`))}},{label:`Отмена`,cls:`btn-secondary`,onClick:()=>u()}]})}},O=[{key:`idea`,label:`💡 Идея`},{key:`task`,label:`✅ Задача`},{key:`buy`,label:`🛒 Покупка`},{key:`other`,label:`📌 Другое`}],ne=[`all`,`idea`,`task`,`buy`,`other`],re={all:`Все`,idea:`Идеи`,task:`Задачи`,buy:`Покупки`,other:`Другое`},ie=class{constructor(){this.selectedCat=`other`,this.activeFilter=`all`}render(){let e=document.createElement(`div`);return this.el=e,this.draw(),e}draw(){let e=a.get(`inbox`)||[],t=this.activeFilter===`all`?e:e.filter(e=>e.category===this.activeFilter);this.el.innerHTML=`
+    `,c({title:`Новое обязательство`,content:e,actions:[{label:`Добавить`,cls:`btn-primary`,onClick:e=>{let t={name:e.querySelector(`#l-name`).value.trim(),amount:parseFloat(e.querySelector(`#l-amount`).value)||0};t.name&&(a.update(`finance.liabilities`,e=>[...e||[],t]),this.draw(),u(),o(`Обязательство добавлено ✓`))}},{label:`Отмена`,cls:`btn-secondary`,onClick:()=>u()}]})}},j=[{key:`idea`,label:`💡 Идея`},{key:`task`,label:`✅ Задача`},{key:`buy`,label:`🛒 Покупка`},{key:`other`,label:`📌 Другое`}],se=[`all`,`idea`,`task`,`buy`,`other`],ce={all:`Все`,idea:`Идеи`,task:`Задачи`,buy:`Покупки`,other:`Другое`},le=class{constructor(){this.selectedCat=`other`,this.activeFilter=`all`}render(){let e=document.createElement(`div`);return this.el=e,this.draw(),e}draw(){let e=a.get(`inbox`)||[],t=this.activeFilter===`all`?e:e.filter(e=>e.category===this.activeFilter);this.el.innerHTML=`
       <div class="page-title" style="margin-bottom:16px;">📥 Inbox</div>
 
       <div class="inbox-compose">
         <textarea class="input" id="inbox-text" placeholder="Запишу мысль... (любая идея, задача, покупка)" rows="3"></textarea>
         <div class="inbox-categories" id="cat-btns">
-          ${O.map(e=>`
+          ${j.map(e=>`
             <button class="cat-btn ${this.selectedCat===e.key?`active`:``}" data-cat="${e.key}">${e.label}</button>
           `).join(``)}
         </div>
@@ -412,8 +430,8 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
       </div>
 
       <div class="filter-tabs" id="filter-tabs">
-        ${ne.map(t=>`
-          <button class="filter-tab ${this.activeFilter===t?`active`:``}" data-filter="${t}">${re[t]} ${t===`all`?`(${e.length})`:`(${e.filter(e=>e.category===t).length})`}</button>
+        ${se.map(t=>`
+          <button class="filter-tab ${this.activeFilter===t?`active`:``}" data-filter="${t}">${ce[t]} ${t===`all`?`(${e.length})`:`(${e.filter(e=>e.category===t).length})`}</button>
         `).join(``)}
       </div>
 
@@ -426,7 +444,7 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
           </div>
         `:t.map((t,n)=>this.renderItem(t,e.indexOf(t))).join(``)}
       </div>
-    `,this.el.querySelector(`#add-inbox-btn`).addEventListener(`click`,()=>this.addItem()),this.el.querySelector(`#inbox-text`).addEventListener(`keydown`,e=>{e.key===`Enter`&&e.ctrlKey&&this.addItem()}),this.el.querySelectorAll(`[data-cat]`).forEach(e=>{e.addEventListener(`click`,()=>{this.selectedCat=e.dataset.cat,this.el.querySelectorAll(`[data-cat]`).forEach(e=>e.classList.toggle(`active`,e.dataset.cat===this.selectedCat))})}),this.el.querySelectorAll(`[data-filter]`).forEach(e=>{e.addEventListener(`click`,()=>{this.activeFilter=e.dataset.filter,this.draw()})}),this.el.querySelector(`#inbox-list`).addEventListener(`click`,e=>{let t=e.target.closest(`[data-del]`);if(t){let e=parseInt(t.dataset.del),n=a.get(`inbox`)||[];n.splice(e,1),a.set(`inbox`,n),this.draw(),o(`Запись удалена`)}})}renderItem(e,t){let n=O.find(t=>t.key===e.category)||O[3],r=new Date(e.created).toLocaleDateString(`ru`,{day:`numeric`,month:`short`,hour:`2-digit`,minute:`2-digit`});return`
+    `,this.el.querySelector(`#add-inbox-btn`).addEventListener(`click`,()=>this.addItem()),this.el.querySelector(`#inbox-text`).addEventListener(`keydown`,e=>{e.key===`Enter`&&e.ctrlKey&&this.addItem()}),this.el.querySelectorAll(`[data-cat]`).forEach(e=>{e.addEventListener(`click`,()=>{this.selectedCat=e.dataset.cat,this.el.querySelectorAll(`[data-cat]`).forEach(e=>e.classList.toggle(`active`,e.dataset.cat===this.selectedCat))})}),this.el.querySelectorAll(`[data-filter]`).forEach(e=>{e.addEventListener(`click`,()=>{this.activeFilter=e.dataset.filter,this.draw()})}),this.el.querySelector(`#inbox-list`).addEventListener(`click`,e=>{let t=e.target.closest(`[data-del]`);if(t){let e=parseInt(t.dataset.del),n=a.get(`inbox`)||[];n.splice(e,1),a.set(`inbox`,n),this.draw(),o(`Запись удалена`)}})}renderItem(e,t){let n=j.find(t=>t.key===e.category)||j[3],r=new Date(e.created).toLocaleDateString(`ru`,{day:`numeric`,month:`short`,hour:`2-digit`,minute:`2-digit`});return`
       <div class="list-item">
         <div style="font-size:20px; padding-top:2px;">${n.label.split(` `)[0]}</div>
         <div class="list-item-body">
@@ -435,7 +453,7 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
         </div>
         <button class="btn btn-ghost btn-icon text-muted" data-del="${t}" style="flex-shrink:0;">✕</button>
       </div>
-    `}addItem(){let e=this.el.querySelector(`#inbox-text`),t=e.value.trim();if(!t){o(`Введите мысль`);return}let n=a.get(`inbox`)||[];n.unshift({text:t,category:this.selectedCat,created:Date.now()}),a.set(`inbox`,n),e.value=``,this.draw(),o(`Записано ✓`)}},k=class{render(){let e=document.createElement(`div`);return this.el=e,this.draw(),e}draw(){let e=a.get(`goals`)||{},t=e.main||{},n=e.subgoals||[],r=t.deadline?Math.ceil((new Date(t.deadline)-new Date)/864e5):null;this.el.innerHTML=`
+    `}addItem(){let e=this.el.querySelector(`#inbox-text`),t=e.value.trim();if(!t){o(`Введите мысль`);return}let n=a.get(`inbox`)||[];n.unshift({text:t,category:this.selectedCat,created:Date.now()}),a.set(`inbox`,n),e.value=``,this.draw(),o(`Записано ✓`)}},ue=class{render(){let e=document.createElement(`div`);return this.el=e,this.draw(),e}draw(){let e=a.get(`goals`)||{},t=e.main||{},n=e.subgoals||[],r=t.deadline?Math.ceil((new Date(t.deadline)-new Date)/864e5):null;this.el.innerHTML=`
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
         <div class="page-title">🎯 Цели</div>
         <button class="btn btn-ghost btn-sm text-accent" id="edit-goal-btn">Изменить</button>
@@ -503,10 +521,10 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
     `,c({title:`Главная цель`,content:t,actions:[{label:`Сохранить`,cls:`btn-primary`,onClick:t=>{let n=t.querySelector(`#g-title`).value.trim();n&&(a.set(`goals.main`,{title:n,deadline:t.querySelector(`#g-deadline`).value,next_step:t.querySelector(`#g-next`).value.trim(),motivation:t.querySelector(`#g-motiv`).value.trim(),progress:e.progress||0}),this.draw(),u(),o(`Цель сохранена ✓`))}},{label:`Отмена`,cls:`btn-secondary`,onClick:()=>u()}]}),setTimeout(()=>t.querySelector(`#g-title`)?.focus(),100)}addSubgoal(){let e=document.createElement(`div`);e.innerHTML=`
       <div class="input-group"><label class="input-label">Подцель</label><input class="input" id="sg-title" placeholder="Конкретный шаг"></div>
       <div class="input-group"><label class="input-label">Дедлайн (необязательно)</label><input class="input" id="sg-deadline" type="date"></div>
-    `,c({title:`Новая подцель`,content:e,actions:[{label:`Добавить`,cls:`btn-primary`,onClick:e=>{let t=e.querySelector(`#sg-title`).value.trim();t&&(a.update(`goals.subgoals`,n=>[...n||[],{title:t,deadline:e.querySelector(`#sg-deadline`).value,done:!1}]),this.draw(),u(),o(`Подцель добавлена ✓`))}},{label:`Отмена`,cls:`btn-secondary`,onClick:()=>u()}]}),setTimeout(()=>e.querySelector(`#sg-title`)?.focus(),100)}},ae=[{hash:`#/work`,icon:`💼`,title:`Работа`,desc:`Продажи и идеи`},{hash:`#/relations`,icon:`❤️`,title:`Отношения`,desc:`Свидания и планы`},{hash:`#/friends`,icon:`👥`,title:`Друзья`,desc:`Контакты и общение`},{hash:`#/health`,icon:`🏃`,title:`Здоровье`,desc:`Сон, вес, энергия`},{hash:`#/habits`,icon:`✅`,title:`Привычки`,desc:`Ежедневные ритуалы`},{hash:`#/weekly`,icon:`📋`,title:`Обзор недели`,desc:`Рефлексия и план`}],oe=class{render(){let e=document.createElement(`div`);return e.innerHTML=`
+    `,c({title:`Новая подцель`,content:e,actions:[{label:`Добавить`,cls:`btn-primary`,onClick:e=>{let t=e.querySelector(`#sg-title`).value.trim();t&&(a.update(`goals.subgoals`,n=>[...n||[],{title:t,deadline:e.querySelector(`#sg-deadline`).value,done:!1}]),this.draw(),u(),o(`Подцель добавлена ✓`))}},{label:`Отмена`,cls:`btn-secondary`,onClick:()=>u()}]}),setTimeout(()=>e.querySelector(`#sg-title`)?.focus(),100)}},de=[{hash:`#/work`,icon:`💼`,title:`Работа`,desc:`Продажи и идеи`},{hash:`#/relations`,icon:`❤️`,title:`Отношения`,desc:`Свидания и планы`},{hash:`#/friends`,icon:`👥`,title:`Друзья`,desc:`Контакты и общение`},{hash:`#/health`,icon:`🏃`,title:`Здоровье`,desc:`Сон, вес, энергия`},{hash:`#/habits`,icon:`✅`,title:`Привычки`,desc:`Ежедневные ритуалы`},{hash:`#/weekly`,icon:`📋`,title:`Обзор недели`,desc:`Рефлексия и план`}],fe=class{render(){let e=document.createElement(`div`);return e.innerHTML=`
       <div class="page-title" style="margin-bottom:20px;">Все разделы</div>
       <div class="more-grid">
-        ${ae.map(e=>`
+        ${de.map(e=>`
           <div class="more-card" data-nav="${e.hash}">
             <div class="more-card-icon">${e.icon}</div>
             <div class="more-card-title">${e.title}</div>
@@ -514,7 +532,7 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
           </div>
         `).join(``)}
       </div>
-    `,e.querySelectorAll(`[data-nav]`).forEach(e=>{e.addEventListener(`click`,()=>$(e.dataset.nav))}),e}},A;function se(e,t=500){clearTimeout(A),A=setTimeout(e,t)}var ce=class{render(){let e=document.createElement(`div`);return this.el=e,this.draw(),e}draw(){let e=a.get(`work`)||{},t=e.plan>0?Math.min(100,Math.round(e.fact/e.plan*100)):0,n=e=>Number(e||0).toLocaleString(`ru`)+` ₽`;this.el.innerHTML=`
+    `,e.querySelectorAll(`[data-nav]`).forEach(e=>{e.addEventListener(`click`,()=>$(e.dataset.nav))}),e}},M;function pe(e,t=500){clearTimeout(M),M=setTimeout(e,t)}var me=class{render(){let e=document.createElement(`div`);return this.el=e,this.draw(),e}draw(){let e=a.get(`work`)||{},t=e.plan>0?Math.min(100,Math.round(e.fact/e.plan*100)):0,n=e=>Number(e||0).toLocaleString(`ru`)+` ₽`;this.el.innerHTML=`
       <div class="page-title" style="margin-bottom:16px;">💼 Работа</div>
 
       <div class="metric-grid">
@@ -577,7 +595,7 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
         <button class="btn btn-ghost btn-sm text-accent" data-add-list="blockers">+ Добавить</button>
       </div>
       <div id="blockers-list">${this.renderList(e.blockers||[],`blockers`)}</div>
-    `,this.el.querySelector(`#edit-metrics-btn`)?.addEventListener(`click`,()=>this.editMetrics(e)),this.el.querySelector(`#tomorrow-input`)?.addEventListener(`input`,e=>{se(()=>{a.set(`work.tomorrow`,e.target.value),o(`Сохранено ✓`)})}),this.el.querySelectorAll(`[data-add-list]`).forEach(e=>{e.addEventListener(`click`,()=>this.addListItem(e.dataset.addList))}),[`ideas`,`problems`,`blockers`].forEach(e=>{this.el.querySelector(`#${e}-list`)?.addEventListener(`click`,t=>{let n=t.target.closest(`[data-del]`);if(n){let t=parseInt(n.dataset.del);a.update(`work.${e}`,e=>{let n=[...e];return n.splice(t,1),n}),this.draw(),o(`Удалено`)}})})}renderList(e,t){return e.length?e.map((e,t)=>`
+    `,this.el.querySelector(`#edit-metrics-btn`)?.addEventListener(`click`,()=>this.editMetrics(e)),this.el.querySelector(`#tomorrow-input`)?.addEventListener(`input`,e=>{pe(()=>{a.set(`work.tomorrow`,e.target.value),o(`Сохранено ✓`)})}),this.el.querySelectorAll(`[data-add-list]`).forEach(e=>{e.addEventListener(`click`,()=>this.addListItem(e.dataset.addList))}),[`ideas`,`problems`,`blockers`].forEach(e=>{this.el.querySelector(`#${e}-list`)?.addEventListener(`click`,t=>{let n=t.target.closest(`[data-del]`);if(n){let t=parseInt(n.dataset.del);a.update(`work.${e}`,e=>{let n=[...e];return n.splice(t,1),n}),this.draw(),o(`Удалено`)}})})}renderList(e,t){return e.length?e.map((e,t)=>`
       <div class="list-item">
         <div class="list-item-body">
           <div class="list-item-title">${typeof e==`string`?e:e.text}</div>
@@ -596,7 +614,7 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
         <label class="input-label">${t[e]||`Запись`}</label>
         <input class="input" id="list-input" placeholder="Опишите...">
       </div>
-    `,c({title:`Добавить: ${t[e]}`,content:n,actions:[{label:`Добавить`,cls:`btn-primary`,onClick:t=>{let n=t.querySelector(`#list-input`).value.trim();n&&(a.update(`work.${e}`,e=>[...e||[],n]),this.draw(),u(),o(`Добавлено ✓`))}},{label:`Отмена`,cls:`btn-secondary`,onClick:()=>u()}]}),setTimeout(()=>n.querySelector(`#list-input`)?.focus(),100)}};function le(){return new Date().toISOString().split(`T`)[0]}var j=[`😫`,`😕`,`😐`,`🙂`,`😊`],ue=class{render(){let e=document.createElement(`div`);return this.el=e,this.draw(),e}draw(){let e=a.get(`health.logs`)||[],t=le(),n=e.find(e=>e.date===t)||{date:t};[...e].sort((e,t)=>t.date.localeCompare(e.date)).slice(0,7),this.el.innerHTML=`
+    `,c({title:`Добавить: ${t[e]}`,content:n,actions:[{label:`Добавить`,cls:`btn-primary`,onClick:t=>{let n=t.querySelector(`#list-input`).value.trim();n&&(a.update(`work.${e}`,e=>[...e||[],n]),this.draw(),u(),o(`Добавлено ✓`))}},{label:`Отмена`,cls:`btn-secondary`,onClick:()=>u()}]}),setTimeout(()=>n.querySelector(`#list-input`)?.focus(),100)}};function he(){return new Date().toISOString().split(`T`)[0]}var N=[`😫`,`😕`,`😐`,`🙂`,`😊`],ge=class{render(){let e=document.createElement(`div`);return this.el=e,this.draw(),e}draw(){let e=a.get(`health.logs`)||[],t=he(),n=e.find(e=>e.date===t)||{date:t};[...e].sort((e,t)=>t.date.localeCompare(e.date)).slice(0,7),this.el.innerHTML=`
       <div class="page-title" style="margin-bottom:20px;">🏃 Здоровье</div>
 
       <div class="card" style="margin-bottom:20px;">
@@ -627,7 +645,7 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
         <div class="input-group" style="margin-top:14px;">
           <label class="input-label">Настроение</label>
           <div class="mood-selector" id="mood-selector">
-            ${j.map((e,t)=>`<div class="mood-btn ${n.mood===t+1?`selected`:``}" data-mood="${t+1}">${e}</div>`).join(``)}
+            ${N.map((e,t)=>`<div class="mood-btn ${n.mood===t+1?`selected`:``}" data-mood="${t+1}">${e}</div>`).join(``)}
           </div>
         </div>
 
@@ -661,7 +679,7 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
                 <div class="health-sleep-bar-fill" style="height:${u}%; background:${l};"></div>
               </div>
               <div class="health-sleep-num" style="color:${l}">${o.sleep||`—`}</div>
-              <div class="health-day-mood">${o.mood?j[o.mood-1]:`·`}</div>
+              <div class="health-day-mood">${o.mood?N[o.mood-1]:`·`}</div>
               <div class="health-day-icons">
                 <span title="Тренировка" style="opacity:${o.workout?1:.2}">🏋️</span>
                 <span title="Витамины" style="opacity:${o.vitamins?1:.2}">💊</span>
@@ -669,7 +687,7 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
             </div>
           `}).join(``)}
       </div>
-    `;let r=()=>(a.get(`health.logs`)||[]).find(e=>e.date===t)||{date:t},i=e=>{let n=a.get(`health.logs`)||[],r=n.findIndex(e=>e.date===t),i={...r>=0?n[r]:{date:t},...e};r>=0?n[r]=i:n.push(i),a.set(`health.logs`,n)},s=this.el.querySelector(`#sleep-range`),c=this.el.querySelector(`#sleep-val`);s?.addEventListener(`input`,()=>{c.textContent=s.value+`ч`,i({sleep:parseFloat(s.value)})}),this.el.querySelector(`#water-tracker`)?.addEventListener(`click`,e=>{let t=e.target.closest(`[data-glass]`);if(!t)return;let n=parseInt(t.dataset.glass);i({water:(r().water||0)===n?n-1:n}),this.draw()}),this.el.querySelector(`#mood-selector`)?.addEventListener(`click`,e=>{let t=e.target.closest(`[data-mood]`);t&&(i({mood:parseInt(t.dataset.mood)}),this.el.querySelectorAll(`.mood-btn`).forEach(e=>e.classList.toggle(`selected`,e===t)))}),this.el.querySelector(`#energy-selector`)?.addEventListener(`click`,e=>{let t=e.target.closest(`[data-energy]`);t&&(i({energy:parseInt(t.dataset.energy)}),this.el.querySelectorAll(`.energy-dot`).forEach(e=>{e.classList.toggle(`selected`,parseInt(e.dataset.energy)===parseInt(t.dataset.energy))}))}),this.el.querySelector(`#save-health-btn`)?.addEventListener(`click`,()=>{i({sleep:parseFloat(this.el.querySelector(`#sleep-range`)?.value||0),weight:parseFloat(this.el.querySelector(`#weight-input`)?.value||0)||void 0,workout:this.el.querySelector(`#workout-cb`)?.checked,vitamins:this.el.querySelector(`#vitamins-cb`)?.checked}),o(`Дневник сохранён ✓`),this.draw()})}},M=[`#6366F1`,`#22C55E`,`#F59E0B`,`#EF4444`,`#8B5CF6`,`#EC4899`,`#14B8A6`,`#F97316`],de=[`💪`,`🏃`,`📚`,`💧`,`🧘`,`🚭`,`😴`,`🥗`,`🎯`,`✍️`,`🎵`,`🧹`],fe=[`Вс`,`Пн`,`Вт`,`Ср`,`Чт`,`Пт`,`Сб`];function N(){return new Date().toISOString().split(`T`)[0]}function P(){return Array.from({length:7},(e,t)=>{let n=new Date;return n.setDate(n.getDate()-(6-t)),n.toISOString().split(`T`)[0]})}function F(e){if(!e?.length)return 0;let t=new Set(e),n=0,r=new Date;for(;;){let e=r.toISOString().split(`T`)[0];if(t.has(e))n++,r.setDate(r.getDate()-1);else break}return n}function I(e){let t=P().filter(t=>e?.includes(t)).length;return Math.round(t/7*100)}var L=class{render(){let e=document.createElement(`div`);return this.el=e,this.draw(),e}draw(){let e=a.get(`habits`)||[],t=N(),n=P(),r=e.filter(e=>e.completions?.includes(t)).length;this.el.innerHTML=`
+    `;let r=()=>(a.get(`health.logs`)||[]).find(e=>e.date===t)||{date:t},i=e=>{let n=a.get(`health.logs`)||[],r=n.findIndex(e=>e.date===t),i={...r>=0?n[r]:{date:t},...e};r>=0?n[r]=i:n.push(i),a.set(`health.logs`,n)},s=this.el.querySelector(`#sleep-range`),c=this.el.querySelector(`#sleep-val`);s?.addEventListener(`input`,()=>{c.textContent=s.value+`ч`,i({sleep:parseFloat(s.value)})}),this.el.querySelector(`#water-tracker`)?.addEventListener(`click`,e=>{let t=e.target.closest(`[data-glass]`);if(!t)return;let n=parseInt(t.dataset.glass);i({water:(r().water||0)===n?n-1:n}),this.draw()}),this.el.querySelector(`#mood-selector`)?.addEventListener(`click`,e=>{let t=e.target.closest(`[data-mood]`);t&&(i({mood:parseInt(t.dataset.mood)}),this.el.querySelectorAll(`.mood-btn`).forEach(e=>e.classList.toggle(`selected`,e===t)))}),this.el.querySelector(`#energy-selector`)?.addEventListener(`click`,e=>{let t=e.target.closest(`[data-energy]`);t&&(i({energy:parseInt(t.dataset.energy)}),this.el.querySelectorAll(`.energy-dot`).forEach(e=>{e.classList.toggle(`selected`,parseInt(e.dataset.energy)===parseInt(t.dataset.energy))}))}),this.el.querySelector(`#save-health-btn`)?.addEventListener(`click`,()=>{i({sleep:parseFloat(this.el.querySelector(`#sleep-range`)?.value||0),weight:parseFloat(this.el.querySelector(`#weight-input`)?.value||0)||void 0,workout:this.el.querySelector(`#workout-cb`)?.checked,vitamins:this.el.querySelector(`#vitamins-cb`)?.checked}),o(`Дневник сохранён ✓`),this.draw()})}},P=[`#6366F1`,`#22C55E`,`#F59E0B`,`#EF4444`,`#8B5CF6`,`#EC4899`,`#14B8A6`,`#F97316`],F=[`💪`,`🏃`,`📚`,`💧`,`🧘`,`🚭`,`😴`,`🥗`,`🎯`,`✍️`,`🎵`,`🧹`],I=[`Вс`,`Пн`,`Вт`,`Ср`,`Чт`,`Пт`,`Сб`];function L(){return new Date().toISOString().split(`T`)[0]}function R(){return Array.from({length:7},(e,t)=>{let n=new Date;return n.setDate(n.getDate()-(6-t)),n.toISOString().split(`T`)[0]})}function _e(e){if(!e?.length)return 0;let t=new Set(e),n=0,r=new Date;for(;;){let e=r.toISOString().split(`T`)[0];if(t.has(e))n++,r.setDate(r.getDate()-1);else break}return n}function ve(e){let t=R().filter(t=>e?.includes(t)).length;return Math.round(t/7*100)}var ye=class{render(){let e=document.createElement(`div`);return this.el=e,this.draw(),e}draw(){let e=a.get(`habits`)||[],t=L(),n=R(),r=e.filter(e=>e.completions?.includes(t)).length;this.el.innerHTML=`
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
         <div class="page-title">✅ Привычки</div>
         <button class="btn btn-ghost btn-sm text-accent" id="add-habit-btn">+ Добавить</button>
@@ -701,7 +719,7 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
           ${e.map((e,r)=>this.renderHabit(e,r,t,n)).join(``)}
         </div>
       `}
-    `,this.el.querySelector(`#add-habit-btn`)?.addEventListener(`click`,()=>this.addHabit()),this.el.querySelectorAll(`[data-suggest]`).forEach(e=>{e.addEventListener(`click`,()=>{let t=e.dataset.suggest,n=t.split(` `)[0],r=t.split(` `).slice(1).join(` `);a.update(`habits`,e=>[...e||[],{name:r,emoji:n,completions:[],created:Date.now()}]),this.draw(),o(`${t} добавлена ✓`)})}),this.el.querySelector(`#habits-list`)?.addEventListener(`click`,e=>{let t=e.target.closest(`[data-toggle]`);if(t){this.toggleDay(parseInt(t.dataset.toggle),t.dataset.day||N());return}let n=e.target.closest(`[data-del-habit]`);if(n){let e=parseInt(n.dataset.delHabit);if(!confirm(`Удалить привычку?`))return;let t=a.get(`habits`)||[];t.splice(e,1),a.set(`habits`,t),this.draw(),o(`Удалено`)}})}renderHabit(e,t,n,r){let i=e.completions||[],a=F(i),o=I(i),s=i.includes(n),c=M[t%M.length],l=e.emoji||`✅`;return`
+    `,this.el.querySelector(`#add-habit-btn`)?.addEventListener(`click`,()=>this.addHabit()),this.el.querySelectorAll(`[data-suggest]`).forEach(e=>{e.addEventListener(`click`,()=>{let t=e.dataset.suggest,n=t.split(` `)[0],r=t.split(` `).slice(1).join(` `);a.update(`habits`,e=>[...e||[],{name:r,emoji:n,completions:[],created:Date.now()}]),this.draw(),o(`${t} добавлена ✓`)})}),this.el.querySelector(`#habits-list`)?.addEventListener(`click`,e=>{let t=e.target.closest(`[data-toggle]`);if(t){this.toggleDay(parseInt(t.dataset.toggle),t.dataset.day||L());return}let n=e.target.closest(`[data-del-habit]`);if(n){let e=parseInt(n.dataset.delHabit);if(!confirm(`Удалить привычку?`))return;let t=a.get(`habits`)||[];t.splice(e,1),a.set(`habits`,t),this.draw(),o(`Удалено`)}})}renderHabit(e,t,n,r){let i=e.completions||[],a=_e(i),o=ve(i),s=i.includes(n),c=P[t%P.length],l=e.emoji||`✅`;return`
       <div class="habit-card" style="border-left:3px solid ${c}; background:${c}0d;">
         <div class="habit-card-top">
           <button class="habit-big-check ${s?`done`:``}"
@@ -727,16 +745,16 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
                   data-toggle="${t}" data-day="${e}">
                   ${r?`✓`:``}
                 </div>
-                <div class="habit-dot-label ${a?`today-label`:``}">${fe[new Date(e).getDay()]}</div>
+                <div class="habit-dot-label ${a?`today-label`:``}">${I[new Date(e).getDay()]}</div>
               </div>
             `}).join(``)}
         </div>
       </div>
-    `}toggleDay(e,t){let n=a.get(`habits`)||[],r=n[e].completions||[],i=r.includes(t);n[e].completions=i?r.filter(e=>e!==t):[...r,t],a.set(`habits`,n),!i&&t===N()&&o(`${n[e].emoji||`✅`} ${n[e].name} ✓`),this.draw()}addHabit(){let e=document.createElement(`div`);e.innerHTML=`
+    `}toggleDay(e,t){let n=a.get(`habits`)||[],r=n[e].completions||[],i=r.includes(t);n[e].completions=i?r.filter(e=>e!==t):[...r,t],a.set(`habits`,n),!i&&t===L()&&o(`${n[e].emoji||`✅`} ${n[e].name} ✓`),this.draw()}addHabit(){let e=document.createElement(`div`);e.innerHTML=`
       <div class="input-group">
         <label class="input-label">Эмодзи</label>
         <div class="emoji-picker">
-          ${de.map(e=>`<button class="emoji-btn" data-emoji="${e}">${e}</button>`).join(``)}
+          ${F.map(e=>`<button class="emoji-btn" data-emoji="${e}">${e}</button>`).join(``)}
         </div>
         <input type="hidden" id="habit-emoji" value="✅">
       </div>
@@ -744,7 +762,7 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
         <label class="input-label">Название</label>
         <input class="input" id="habit-name" placeholder="Тренировка / Читать / Вода">
       </div>
-    `,e.querySelectorAll(`.emoji-btn`).forEach(t=>{t.addEventListener(`click`,()=>{e.querySelectorAll(`.emoji-btn`).forEach(e=>e.classList.remove(`selected`)),t.classList.add(`selected`),e.querySelector(`#habit-emoji`).value=t.dataset.emoji})}),c({title:`Новая привычка`,content:e,actions:[{label:`Добавить`,cls:`btn-primary`,onClick:e=>{let t=e.querySelector(`#habit-name`).value.trim();if(!t){o(`Введите название`);return}let n=e.querySelector(`#habit-emoji`).value;a.update(`habits`,e=>[...e||[],{name:t,emoji:n,completions:[],created:Date.now()}]),this.draw(),u(),o(`${n} ${t} добавлена ✓`)}},{label:`Отмена`,cls:`btn-secondary`,onClick:()=>u()}]}),setTimeout(()=>e.querySelector(`#habit-name`)?.focus(),100)}},R;function z(e,t){clearTimeout(R),R=setTimeout(()=>{a.set(e,t)},400)}var B=class{render(){let e=document.createElement(`div`);return this.el=e,this.draw(),e}draw(){let e=a.get(`relations`)||{},t=e.last_date?Math.floor((Date.now()-new Date(e.last_date))/864e5):null,n=e.next_date?Math.ceil((new Date(e.next_date)-Date.now())/864e5):null;this.el.innerHTML=`
+    `,e.querySelectorAll(`.emoji-btn`).forEach(t=>{t.addEventListener(`click`,()=>{e.querySelectorAll(`.emoji-btn`).forEach(e=>e.classList.remove(`selected`)),t.classList.add(`selected`),e.querySelector(`#habit-emoji`).value=t.dataset.emoji})}),c({title:`Новая привычка`,content:e,actions:[{label:`Добавить`,cls:`btn-primary`,onClick:e=>{let t=e.querySelector(`#habit-name`).value.trim();if(!t){o(`Введите название`);return}let n=e.querySelector(`#habit-emoji`).value;a.update(`habits`,e=>[...e||[],{name:t,emoji:n,completions:[],created:Date.now()}]),this.draw(),u(),o(`${n} ${t} добавлена ✓`)}},{label:`Отмена`,cls:`btn-secondary`,onClick:()=>u()}]}),setTimeout(()=>e.querySelector(`#habit-name`)?.focus(),100)}},z;function be(e,t){clearTimeout(z),z=setTimeout(()=>{a.set(e,t)},400)}var xe=class{render(){let e=document.createElement(`div`);return this.el=e,this.draw(),e}draw(){let e=a.get(`relations`)||{},t=e.last_date?Math.floor((Date.now()-new Date(e.last_date))/864e5):null,n=e.next_date?Math.ceil((new Date(e.next_date)-Date.now())/864e5):null;this.el.innerHTML=`
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
         <div class="page-title">❤️ Отношения</div>
       </div>
@@ -844,10 +862,10 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
         <div class="section-block-title">✏️ Заметки</div>
         <textarea class="input" id="notes-input" rows="4" placeholder="Любые заметки об отношениях...">${e.notes||``}</textarea>
       </div>
-    `;let r=(e,t)=>{this.el.querySelector(`#${t}`)?.addEventListener(`input`,t=>{z(`relations.${e}`,t.target.value)})};r(`partner_name`,`partner-name`),r(`last_date`,`last-date`),r(`next_date`,`next-date`),r(`next_date_desc`,`next-date-desc`),r(`notes`,`notes-input`),[`last-date`,`next-date`].forEach(e=>{this.el.querySelector(`#${e}`)?.addEventListener(`change`,()=>this.draw())}),this.el.querySelector(`#add-date-idea`)?.addEventListener(`click`,()=>this.addSimple(`date_ideas`,`Идея свидания`,`Например: ужин, пикник, кино`)),this.el.querySelector(`#add-promise`)?.addEventListener(`click`,()=>this.addCheckItem(`promises`,`Обещание`,`Что обещал?`)),this.el.querySelector(`#add-gift`)?.addEventListener(`click`,()=>this.addCheckItem(`gifts`,`Подарок`,`Что подарить?`)),this.el.querySelector(`#add-imp-date`)?.addEventListener(`click`,()=>this.addImportantDate()),this.el.querySelector(`#date-ideas-list`)?.addEventListener(`click`,e=>{let t=e.target.closest(`[data-del-idea]`);t&&this.removeSimple(`date_ideas`,parseInt(t.dataset.delIdea))}),this.el.querySelector(`#promises-list`)?.addEventListener(`click`,e=>{let t=e.target.closest(`[data-promise]`);if(t){this.toggleCheck(`promises`,parseInt(t.dataset.promise));return}let n=e.target.closest(`[data-del-promise]`);n&&this.removeCheckItem(`promises`,parseInt(n.dataset.delPromise))}),this.el.querySelector(`#gifts-list`)?.addEventListener(`click`,e=>{let t=e.target.closest(`[data-gift]`);if(t){this.toggleCheck(`gifts`,parseInt(t.dataset.gift));return}let n=e.target.closest(`[data-del-gift]`);n&&this.removeCheckItem(`gifts`,parseInt(n.dataset.delGift))}),this.el.querySelector(`#imp-dates-list`)?.addEventListener(`click`,e=>{let t=e.target.closest(`[data-del-date]`);if(t){let e=a.get(`relations`)||{};(e.important_dates||[]).splice(parseInt(t.dataset.delDate),1),a.set(`relations`,e),this.draw()}})}addSimple(e,t,n){let r=document.createElement(`div`);r.innerHTML=`<div class="input-group"><label class="input-label">${t}</label><input class="input" id="si" placeholder="${n}"></div>`,c({title:t,content:r,actions:[{label:`Добавить`,cls:`btn-primary`,onClick:t=>{let n=t.querySelector(`#si`).value.trim();n&&(a.update(`relations.${e}`,e=>[...e||[],n]),this.draw(),u(),o(`Добавлено ✓`))}},{label:`Отмена`,cls:`btn-secondary`,onClick:()=>u()}]}),setTimeout(()=>r.querySelector(`#si`)?.focus(),100)}addCheckItem(e,t,n){let r=document.createElement(`div`);r.innerHTML=`<div class="input-group"><label class="input-label">${t}</label><input class="input" id="ci" placeholder="${n}"></div>`,c({title:t,content:r,actions:[{label:`Добавить`,cls:`btn-primary`,onClick:t=>{let n=t.querySelector(`#ci`).value.trim();n&&(a.update(`relations.${e}`,e=>[...e||[],{text:n,done:!1}]),this.draw(),u(),o(`Добавлено ✓`))}},{label:`Отмена`,cls:`btn-secondary`,onClick:()=>u()}]}),setTimeout(()=>r.querySelector(`#ci`)?.focus(),100)}addImportantDate(){let e=document.createElement(`div`);e.innerHTML=`
+    `;let r=(e,t)=>{this.el.querySelector(`#${t}`)?.addEventListener(`input`,t=>{be(`relations.${e}`,t.target.value)})};r(`partner_name`,`partner-name`),r(`last_date`,`last-date`),r(`next_date`,`next-date`),r(`next_date_desc`,`next-date-desc`),r(`notes`,`notes-input`),[`last-date`,`next-date`].forEach(e=>{this.el.querySelector(`#${e}`)?.addEventListener(`change`,()=>this.draw())}),this.el.querySelector(`#add-date-idea`)?.addEventListener(`click`,()=>this.addSimple(`date_ideas`,`Идея свидания`,`Например: ужин, пикник, кино`)),this.el.querySelector(`#add-promise`)?.addEventListener(`click`,()=>this.addCheckItem(`promises`,`Обещание`,`Что обещал?`)),this.el.querySelector(`#add-gift`)?.addEventListener(`click`,()=>this.addCheckItem(`gifts`,`Подарок`,`Что подарить?`)),this.el.querySelector(`#add-imp-date`)?.addEventListener(`click`,()=>this.addImportantDate()),this.el.querySelector(`#date-ideas-list`)?.addEventListener(`click`,e=>{let t=e.target.closest(`[data-del-idea]`);t&&this.removeSimple(`date_ideas`,parseInt(t.dataset.delIdea))}),this.el.querySelector(`#promises-list`)?.addEventListener(`click`,e=>{let t=e.target.closest(`[data-promise]`);if(t){this.toggleCheck(`promises`,parseInt(t.dataset.promise));return}let n=e.target.closest(`[data-del-promise]`);n&&this.removeCheckItem(`promises`,parseInt(n.dataset.delPromise))}),this.el.querySelector(`#gifts-list`)?.addEventListener(`click`,e=>{let t=e.target.closest(`[data-gift]`);if(t){this.toggleCheck(`gifts`,parseInt(t.dataset.gift));return}let n=e.target.closest(`[data-del-gift]`);n&&this.removeCheckItem(`gifts`,parseInt(n.dataset.delGift))}),this.el.querySelector(`#imp-dates-list`)?.addEventListener(`click`,e=>{let t=e.target.closest(`[data-del-date]`);if(t){let e=a.get(`relations`)||{};(e.important_dates||[]).splice(parseInt(t.dataset.delDate),1),a.set(`relations`,e),this.draw()}})}addSimple(e,t,n){let r=document.createElement(`div`);r.innerHTML=`<div class="input-group"><label class="input-label">${t}</label><input class="input" id="si" placeholder="${n}"></div>`,c({title:t,content:r,actions:[{label:`Добавить`,cls:`btn-primary`,onClick:t=>{let n=t.querySelector(`#si`).value.trim();n&&(a.update(`relations.${e}`,e=>[...e||[],n]),this.draw(),u(),o(`Добавлено ✓`))}},{label:`Отмена`,cls:`btn-secondary`,onClick:()=>u()}]}),setTimeout(()=>r.querySelector(`#si`)?.focus(),100)}addCheckItem(e,t,n){let r=document.createElement(`div`);r.innerHTML=`<div class="input-group"><label class="input-label">${t}</label><input class="input" id="ci" placeholder="${n}"></div>`,c({title:t,content:r,actions:[{label:`Добавить`,cls:`btn-primary`,onClick:t=>{let n=t.querySelector(`#ci`).value.trim();n&&(a.update(`relations.${e}`,e=>[...e||[],{text:n,done:!1}]),this.draw(),u(),o(`Добавлено ✓`))}},{label:`Отмена`,cls:`btn-secondary`,onClick:()=>u()}]}),setTimeout(()=>r.querySelector(`#ci`)?.focus(),100)}addImportantDate(){let e=document.createElement(`div`);e.innerHTML=`
       <div class="input-group"><label class="input-label">Событие</label><input class="input" id="id-name" placeholder="День рождения / годовщина"></div>
       <div class="input-group"><label class="input-label">Дата</label><input class="input" id="id-date" type="date"></div>
-    `,c({title:`Важная дата`,content:e,actions:[{label:`Добавить`,cls:`btn-primary`,onClick:e=>{let t=e.querySelector(`#id-name`).value.trim();t&&(a.update(`relations.important_dates`,n=>[...n||[],{name:t,date:e.querySelector(`#id-date`).value}]),this.draw(),u(),o(`Дата добавлена ✓`))}},{label:`Отмена`,cls:`btn-secondary`,onClick:()=>u()}]}),setTimeout(()=>e.querySelector(`#id-name`)?.focus(),100)}removeSimple(e,t){a.update(`relations.${e}`,e=>{let n=[...e];return n.splice(t,1),n}),this.draw(),o(`Удалено`)}toggleCheck(e,t){let n=a.get(`relations`)||{};n[e][t].done=!n[e][t].done,a.set(`relations`,n),this.draw()}removeCheckItem(e,t){a.update(`relations.${e}`,e=>{let n=[...e];return n.splice(t,1),n}),this.draw(),o(`Удалено`)}},V=[`#6366F1`,`#22C55E`,`#F59E0B`,`#EF4444`,`#8B5CF6`,`#EC4899`,`#14B8A6`,`#F97316`];function H(e){return e.split(` `).map(e=>e[0]).join(``).toUpperCase().slice(0,2)}function U(e){return V[(e.charCodeAt(0)||0)%V.length]}function W(e){return e?Math.floor((Date.now()-new Date(e))/864e5):null}function G(e){if(!e)return null;let t=new Date(e),n=new Date,r=n.getFullYear()-t.getFullYear(),i=n.getMonth()-t.getMonth();return(i<0||i===0&&n.getDate()<t.getDate())&&r--,r}function K(e){if(!e)return null;let t=new Date,n=new Date(e),r=new Date(t.getFullYear(),n.getMonth(),n.getDate());return r<t&&r.setFullYear(t.getFullYear()+1),Math.ceil((r-t)/864e5)}function q(e){return e===null?{text:`Нет данных`,color:`var(--text-muted)`}:e===0?{text:`Сегодня`,color:`var(--success)`}:e<7?{text:`${e} дн. назад`,color:`var(--success)`}:e<30?{text:`${e} дн. назад`,color:`var(--warning)`}:{text:`${e} дн. — давно!`,color:`var(--danger)`}}var pe=class{render(){let e=document.createElement(`div`);return this.el=e,this.draw(),e}draw(){let e=(a.get(`friends`)||[]).map((e,t)=>({...e,_idx:t})).sort((e,t)=>(W(e.last_contact)??999)-(W(t.last_contact)??999));this.el.innerHTML=`
+    `,c({title:`Важная дата`,content:e,actions:[{label:`Добавить`,cls:`btn-primary`,onClick:e=>{let t=e.querySelector(`#id-name`).value.trim();t&&(a.update(`relations.important_dates`,n=>[...n||[],{name:t,date:e.querySelector(`#id-date`).value}]),this.draw(),u(),o(`Дата добавлена ✓`))}},{label:`Отмена`,cls:`btn-secondary`,onClick:()=>u()}]}),setTimeout(()=>e.querySelector(`#id-name`)?.focus(),100)}removeSimple(e,t){a.update(`relations.${e}`,e=>{let n=[...e];return n.splice(t,1),n}),this.draw(),o(`Удалено`)}toggleCheck(e,t){let n=a.get(`relations`)||{};n[e][t].done=!n[e][t].done,a.set(`relations`,n),this.draw()}removeCheckItem(e,t){a.update(`relations.${e}`,e=>{let n=[...e];return n.splice(t,1),n}),this.draw(),o(`Удалено`)}},B=[`#6366F1`,`#22C55E`,`#F59E0B`,`#EF4444`,`#8B5CF6`,`#EC4899`,`#14B8A6`,`#F97316`];function V(e){return e.split(` `).map(e=>e[0]).join(``).toUpperCase().slice(0,2)}function H(e){return B[(e.charCodeAt(0)||0)%B.length]}function U(e){return e?Math.floor((Date.now()-new Date(e))/864e5):null}function W(e){if(!e)return null;let t=new Date(e),n=new Date,r=n.getFullYear()-t.getFullYear(),i=n.getMonth()-t.getMonth();return(i<0||i===0&&n.getDate()<t.getDate())&&r--,r}function G(e){if(!e)return null;let t=new Date,n=new Date(e),r=new Date(t.getFullYear(),n.getMonth(),n.getDate());return r<t&&r.setFullYear(t.getFullYear()+1),Math.ceil((r-t)/864e5)}function K(e){return e===null?{text:`Нет данных`,color:`var(--text-muted)`}:e===0?{text:`Сегодня`,color:`var(--success)`}:e<7?{text:`${e} дн. назад`,color:`var(--success)`}:e<30?{text:`${e} дн. назад`,color:`var(--warning)`}:{text:`${e} дн. — давно!`,color:`var(--danger)`}}var Se=class{render(){let e=document.createElement(`div`);return this.el=e,this.draw(),e}draw(){let e=(a.get(`friends`)||[]).map((e,t)=>({...e,_idx:t})).sort((e,t)=>(U(e.last_contact)??999)-(U(t.last_contact)??999));this.el.innerHTML=`
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
         <div class="page-title">👥 Друзья</div>
         <button class="btn btn-ghost btn-sm text-accent" id="add-friend-btn">+ Добавить</button>
@@ -860,10 +878,10 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
           <div class="empty-state-text">Добавьте друзей — следи за тем, чтобы регулярно с ними общаться</div>
         </div>
       `:`<div class="friends-grid">${e.map(e=>this.renderCard(e)).join(``)}</div>`}
-    `,this.el.querySelector(`#add-friend-btn`)?.addEventListener(`click`,()=>this.openAddModal()),this.el.querySelectorAll(`[data-open-dossier]`).forEach(e=>{e.addEventListener(`click`,()=>this.openDossier(parseInt(e.dataset.openDossier)))}),this.el.querySelectorAll(`[data-contact]`).forEach(e=>{e.addEventListener(`click`,t=>{t.stopPropagation();let n=parseInt(e.dataset.contact),r=a.get(`friends`)||[];r[n].last_contact=new Date().toISOString().split(`T`)[0],a.set(`friends`,r),this.draw(),o(`Отмечено ✓`)})})}renderCard(e){let t=q(W(e.last_contact)),n=K(e.birthday),r=G(e.birthday),i=n!==null&&n<=7;return`
+    `,this.el.querySelector(`#add-friend-btn`)?.addEventListener(`click`,()=>this.openAddModal()),this.el.querySelectorAll(`[data-open-dossier]`).forEach(e=>{e.addEventListener(`click`,()=>this.openDossier(parseInt(e.dataset.openDossier)))}),this.el.querySelectorAll(`[data-contact]`).forEach(e=>{e.addEventListener(`click`,t=>{t.stopPropagation();let n=parseInt(e.dataset.contact),r=a.get(`friends`)||[];r[n].last_contact=new Date().toISOString().split(`T`)[0],a.set(`friends`,r),this.draw(),o(`Отмечено ✓`)})})}renderCard(e){let t=K(U(e.last_contact)),n=G(e.birthday),r=W(e.birthday),i=n!==null&&n<=7;return`
       <div class="friend-card" data-open-dossier="${e._idx}">
         <div class="friend-card-top">
-          ${e.photo?`<img class="friend-avatar-img" src="${e.photo}" alt="${e.name}">`:`<div class="friend-avatar" style="background:${U(e.name)}">${H(e.name)}</div>`}
+          ${e.photo?`<img class="friend-avatar-img" src="${e.photo}" alt="${e.name}">`:`<div class="friend-avatar" style="background:${H(e.name)}">${V(e.name)}</div>`}
           ${i?`<div class="friend-bd-badge">🎂 ${n===0?`Сегодня!`:`через ${n} дн.`}</div>`:``}
         </div>
         <div class="friend-card-body">
@@ -874,11 +892,11 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
         </div>
         <button class="btn btn-secondary btn-sm friend-contact-btn" data-contact="${e._idx}" title="Написал сегодня">✓ Написал</button>
       </div>
-    `}openDossier(e){let t=(a.get(`friends`)||[])[e];if(!t)return;let n=q(W(t.last_contact)),r=G(t.birthday),i=K(t.birthday),s=document.createElement(`div`);s.innerHTML=`
+    `}openDossier(e){let t=(a.get(`friends`)||[])[e];if(!t)return;let n=K(U(t.last_contact)),r=W(t.birthday),i=G(t.birthday),s=document.createElement(`div`);s.innerHTML=`
       <div class="dossier">
         <div class="dossier-header">
           <div class="dossier-avatar-wrap">
-            ${t.photo?`<img class="dossier-avatar-img" src="${t.photo}" alt="${t.name}" id="dossier-preview">`:`<div class="dossier-avatar" style="background:${U(t.name)}" id="dossier-preview">${H(t.name)}</div>`}
+            ${t.photo?`<img class="dossier-avatar-img" src="${t.photo}" alt="${t.name}" id="dossier-preview">`:`<div class="dossier-avatar" style="background:${H(t.name)}" id="dossier-preview">${V(t.name)}</div>`}
             <label class="dossier-photo-btn" title="Сменить фото">
               📷
               <input type="file" accept="image/*" id="photo-upload" style="display:none">
@@ -946,12 +964,12 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
           <input class="input" id="f-notes" placeholder="Где работает, как познакомились...">
         </div>
       </div>
-    `,c({title:`Новый контакт`,content:e,actions:[{label:`Добавить`,cls:`btn-primary`,onClick:e=>{let t=e.querySelector(`#f-name`).value.trim();if(!t){o(`Введите имя`);return}a.update(`friends`,n=>[...n||[],{name:t,phone:e.querySelector(`#f-phone`).value.trim()||null,birthday:e.querySelector(`#f-birthday`).value||null,last_contact:e.querySelector(`#f-contact`).value||null,notes:e.querySelector(`#f-notes`).value.trim()||null,photo:null,added:Date.now()}]),this.draw(),u(),o(`${t} добавлен ✓`)}},{label:`Отмена`,cls:`btn-secondary`,onClick:()=>u()}]}),setTimeout(()=>e.querySelector(`#f-name`)?.focus(),100)}};function me(e){let t=new Date(e);t.setHours(0,0,0,0),t.setDate(t.getDate()+3-(t.getDay()+6)%7);let n=new Date(t.getFullYear(),0,4);return 1+Math.round(((t.getTime()-n.getTime())/864e5-3+(n.getDay()+6)%7)/7)}var J=[{key:`wins`,label:`✅ Что получилось?`,placeholder:`Главные победы недели...`},{key:`useless`,label:`🗑 Что было бесполезным?`,placeholder:`Что потратило время без пользы...`},{key:`money`,label:`💰 Что принесло деньги?`,placeholder:`Источники дохода или ключевые действия...`},{key:`energy`,label:`⚡ Что забрало энергию?`,placeholder:`Что истощало...`},{key:`next_goal`,label:`🎯 Главная цель следующей недели`,placeholder:`Одна главная задача...`},{key:`stop`,label:`🚫 Что нужно перестать делать?`,placeholder:`Привычки / действия которые мешают...`}],Y=[`😫`,`😞`,`😐`,`🙂`,`😊`,`😄`,`🥳`,`💪`,`🔥`,`⭐`],he={"#/dashboard":w,"#/finance":te,"#/inbox":ie,"#/goals":k,"#/more":oe,"#/work":ce,"#/health":ue,"#/habits":L,"#/relations":B,"#/friends":pe,"#/weekly":class{render(){let e=document.createElement(`div`);return this.el=e,this.draw(),e}draw(){let e=a.get(`weekly`)||[],t=new Date,n=me(t),r=`${t.getFullYear()}-W${n}`,i=e.find(e=>e.key===r)||{key:r,rating:0},s=e.filter(e=>e.key!==r).sort((e,t)=>t.key.localeCompare(e.key));this.el.innerHTML=`
+    `,c({title:`Новый контакт`,content:e,actions:[{label:`Добавить`,cls:`btn-primary`,onClick:e=>{let t=e.querySelector(`#f-name`).value.trim();if(!t){o(`Введите имя`);return}a.update(`friends`,n=>[...n||[],{name:t,phone:e.querySelector(`#f-phone`).value.trim()||null,birthday:e.querySelector(`#f-birthday`).value||null,last_contact:e.querySelector(`#f-contact`).value||null,notes:e.querySelector(`#f-notes`).value.trim()||null,photo:null,added:Date.now()}]),this.draw(),u(),o(`${t} добавлен ✓`)}},{label:`Отмена`,cls:`btn-secondary`,onClick:()=>u()}]}),setTimeout(()=>e.querySelector(`#f-name`)?.focus(),100)}};function Ce(e){let t=new Date(e);t.setHours(0,0,0,0),t.setDate(t.getDate()+3-(t.getDay()+6)%7);let n=new Date(t.getFullYear(),0,4);return 1+Math.round(((t.getTime()-n.getTime())/864e5-3+(n.getDay()+6)%7)/7)}var q=[{key:`wins`,label:`✅ Что получилось?`,placeholder:`Главные победы недели...`},{key:`useless`,label:`🗑 Что было бесполезным?`,placeholder:`Что потратило время без пользы...`},{key:`money`,label:`💰 Что принесло деньги?`,placeholder:`Источники дохода или ключевые действия...`},{key:`energy`,label:`⚡ Что забрало энергию?`,placeholder:`Что истощало...`},{key:`next_goal`,label:`🎯 Главная цель следующей недели`,placeholder:`Одна главная задача...`},{key:`stop`,label:`🚫 Что нужно перестать делать?`,placeholder:`Привычки / действия которые мешают...`}],J=[`😫`,`😞`,`😐`,`🙂`,`😊`,`😄`,`🥳`,`💪`,`🔥`,`⭐`],we={"#/dashboard":D,"#/finance":oe,"#/inbox":le,"#/goals":ue,"#/more":fe,"#/work":me,"#/health":ge,"#/habits":ye,"#/relations":xe,"#/friends":Se,"#/weekly":class{render(){let e=document.createElement(`div`);return this.el=e,this.draw(),e}draw(){let e=a.get(`weekly`)||[],t=new Date,n=Ce(t),r=`${t.getFullYear()}-W${n}`,i=e.find(e=>e.key===r)||{key:r,rating:0},s=e.filter(e=>e.key!==r).sort((e,t)=>t.key.localeCompare(e.key));this.el.innerHTML=`
       <div class="page-title" style="margin-bottom:4px;">📋 Обзор недели</div>
       <div class="page-subtitle" style="margin-bottom:20px;">Неделя ${n} · ${t.toLocaleDateString(`ru`,{month:`long`,year:`numeric`})}</div>
 
       <div class="card" style="margin-bottom:16px;">
-        ${J.map(e=>`
+        ${q.map(e=>`
           <div class="weekly-question">
             <div class="weekly-question-label">${e.label}</div>
             <textarea class="input" data-key="${e.key}" rows="2" placeholder="${e.placeholder}">${i[e.key]||``}</textarea>
@@ -965,7 +983,7 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
               <div class="rating-btn ${i.rating===e?`selected`:``}" data-rating="${e}">${e}</div>
             `).join(``)}
           </div>
-          ${i.rating?`<div style="margin-top:8px; font-size:24px; text-align:center;">${Y[i.rating-1]}</div>`:``}
+          ${i.rating?`<div style="margin-top:8px; font-size:24px; text-align:center;">${J[i.rating-1]}</div>`:``}
         </div>
 
         <button class="btn btn-primary btn-full" id="save-weekly-btn" style="margin-top:8px;">Сохранить обзор ✓</button>
@@ -982,11 +1000,11 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
                 ${e.next_goal?`<div class="text-sm text-muted">${e.next_goal}</div>`:``}
               </div>
               <div style="display:flex; align-items:center; gap:8px;">
-                ${e.rating?`<span style="font-size:20px;">${Y[e.rating-1]}</span><span class="badge badge-accent">${e.rating}/10</span>`:``}
+                ${e.rating?`<span style="font-size:20px;">${J[e.rating-1]}</span><span class="badge badge-accent">${e.rating}/10</span>`:``}
               </div>
             </div>
             <div class="review-details" id="review-${t}" style="display:none; margin-top:12px; border-top:1px solid var(--border); padding-top:12px;">
-              ${J.filter(t=>e[t.key]).map(t=>`
+              ${q.filter(t=>e[t.key]).map(t=>`
                 <div style="margin-bottom:10px;">
                   <div class="text-xs text-muted" style="margin-bottom:4px;">${t.label}</div>
                   <div class="text-sm" style="white-space:pre-wrap;">${e[t.key]}</div>
@@ -997,4 +1015,4 @@ ${u?`- Срочная карта: ${u.bank}, льготный период до 
         `).join(``)}
       </div>
       `:``}
-    `;let c=()=>{let e={...i};return this.el.querySelectorAll(`[data-key]`).forEach(t=>{e[t.dataset.key]=t.value}),e};this.el.querySelectorAll(`[data-key]`).forEach(e=>{e.addEventListener(`input`,()=>{clearTimeout(this._saveTimer),this._saveTimer=setTimeout(()=>{let e=a.get(`weekly`)||[],t=c(),n=e.findIndex(e=>e.key===r);n>=0?e[n]=t:e.push(t),a.set(`weekly`,e)},600)})}),this.el.querySelector(`#rating-selector`)?.addEventListener(`click`,e=>{let t=e.target.closest(`[data-rating]`);if(!t)return;let n=parseInt(t.dataset.rating),i=a.get(`weekly`)||[],o={...c(),rating:n},s=i.findIndex(e=>e.key===r);s>=0?i[s]=o:i.push(o),a.set(`weekly`,i),this.draw()}),this.el.querySelector(`#save-weekly-btn`)?.addEventListener(`click`,()=>{let e=a.get(`weekly`)||[],t=c(),n=e.findIndex(e=>e.key===r);n>=0?e[n]=t:e.push(t),a.set(`weekly`,e),o(`Обзор сохранён ✓`)}),this.el.querySelector(`#past-reviews`)?.addEventListener(`click`,e=>{let t=e.target.closest(`[data-toggle-review]`);if(t){let e=t.dataset.toggleReview,n=this.el.querySelector(`#review-${e}`);n&&(n.style.display=n.style.display===`none`?`block`:`none`)}})}}},ge=[`#/dashboard`,`#/finance`,`#/inbox`,`#/goals`,`#/more`],X=``,Z=document.getElementById(`page-container`);function Q(e){return ge.indexOf(e)}function $(e,t={}){if(e===X&&!t.force)return;let n=X;X=e;let r=he[e];if(!r){$(`#/dashboard`);return}let i=Q(n),a=Q(e),o=``;t.noAnim||(i===-1||a===-1||a>i?o=`slide-left`:a<i&&(o=`slide-right`));let s=new r().render();s.classList.add(`page`),o&&s.classList.add(o),Z.innerHTML=``,Z.appendChild(s),window.location.hash=e,_e(e)}function _e(e){document.querySelectorAll(`.nav-item`).forEach(t=>{t.classList.toggle(`active`,t.dataset.hash===e)})}function ve(){window.addEventListener(`hashchange`,()=>{let e=window.location.hash||`#/dashboard`;e!==X&&$(e,{noAnim:!1})}),$(window.location.hash||`#/dashboard`,{noAnim:!0})}var ye=[{hash:`#/dashboard`,icon:`🏠`,label:`Главная`},{hash:`#/finance`,icon:`💰`,label:`Финансы`},{hash:`fab`,icon:`+`,label:``},{hash:`#/goals`,icon:`🎯`,label:`Цели`},{hash:`#/more`,icon:`☰`,label:`Ещё`}];function be(){let e=document.getElementById(`bottom-nav`);e.innerHTML=``,ye.forEach(t=>{if(t.hash===`fab`){let t=document.createElement(`button`);t.className=`nav-fab`,t.textContent=`+`,t.setAttribute(`aria-label`,`Добавить в Inbox`),t.addEventListener(`click`,()=>$(`#/inbox`)),e.appendChild(t)}else{let n=document.createElement(`button`);n.className=`nav-item`,n.dataset.hash=t.hash,n.innerHTML=`<span class="nav-icon">${t.icon}</span><span>${t.label}</span>`,n.addEventListener(`click`,()=>$(t.hash)),e.appendChild(n)}});let t=window.location.hash||`#/dashboard`;document.querySelectorAll(`.nav-item`).forEach(e=>{e.classList.toggle(`active`,e.dataset.hash===t)})}`serviceWorker`in navigator&&window.addEventListener(`load`,()=>{navigator.serviceWorker.register(`/sw.js`).catch(()=>{})}),be(),ve();
+    `;let c=()=>{let e={...i};return this.el.querySelectorAll(`[data-key]`).forEach(t=>{e[t.dataset.key]=t.value}),e};this.el.querySelectorAll(`[data-key]`).forEach(e=>{e.addEventListener(`input`,()=>{clearTimeout(this._saveTimer),this._saveTimer=setTimeout(()=>{let e=a.get(`weekly`)||[],t=c(),n=e.findIndex(e=>e.key===r);n>=0?e[n]=t:e.push(t),a.set(`weekly`,e)},600)})}),this.el.querySelector(`#rating-selector`)?.addEventListener(`click`,e=>{let t=e.target.closest(`[data-rating]`);if(!t)return;let n=parseInt(t.dataset.rating),i=a.get(`weekly`)||[],o={...c(),rating:n},s=i.findIndex(e=>e.key===r);s>=0?i[s]=o:i.push(o),a.set(`weekly`,i),this.draw()}),this.el.querySelector(`#save-weekly-btn`)?.addEventListener(`click`,()=>{let e=a.get(`weekly`)||[],t=c(),n=e.findIndex(e=>e.key===r);n>=0?e[n]=t:e.push(t),a.set(`weekly`,e),o(`Обзор сохранён ✓`)}),this.el.querySelector(`#past-reviews`)?.addEventListener(`click`,e=>{let t=e.target.closest(`[data-toggle-review]`);if(t){let e=t.dataset.toggleReview,n=this.el.querySelector(`#review-${e}`);n&&(n.style.display=n.style.display===`none`?`block`:`none`)}})}}},Y=[`#/dashboard`,`#/finance`,`#/inbox`,`#/goals`,`#/more`],X=``,Z=document.getElementById(`page-container`);function Q(e){return Y.indexOf(e)}function $(e,t={}){if(e===X&&!t.force)return;let n=X;X=e;let r=we[e];if(!r){$(`#/dashboard`);return}let i=Q(n),a=Q(e),o=``;t.noAnim||(i===-1||a===-1||a>i?o=`slide-left`:a<i&&(o=`slide-right`));let s=new r().render();s.classList.add(`page`),o&&s.classList.add(o),Z.innerHTML=``,Z.appendChild(s),window.location.hash=e,Te(e)}function Te(e){document.querySelectorAll(`.nav-item`).forEach(t=>{t.classList.toggle(`active`,t.dataset.hash===e)})}function Ee(){window.addEventListener(`hashchange`,()=>{let e=window.location.hash||`#/dashboard`;e!==X&&$(e,{noAnim:!1})}),$(window.location.hash||`#/dashboard`,{noAnim:!0})}var De=[{hash:`#/dashboard`,icon:`🏠`,label:`Главная`},{hash:`#/finance`,icon:`💰`,label:`Финансы`},{hash:`fab`,icon:`+`,label:``},{hash:`#/goals`,icon:`🎯`,label:`Цели`},{hash:`#/more`,icon:`☰`,label:`Ещё`}];function Oe(){let e=document.getElementById(`bottom-nav`);e.innerHTML=``,De.forEach(t=>{if(t.hash===`fab`){let t=document.createElement(`button`);t.className=`nav-fab`,t.textContent=`+`,t.setAttribute(`aria-label`,`Добавить в Inbox`),t.addEventListener(`click`,()=>$(`#/inbox`)),e.appendChild(t)}else{let n=document.createElement(`button`);n.className=`nav-item`,n.dataset.hash=t.hash,n.innerHTML=`<span class="nav-icon">${t.icon}</span><span>${t.label}</span>`,n.addEventListener(`click`,()=>$(t.hash)),e.appendChild(n)}});let t=window.location.hash||`#/dashboard`;document.querySelectorAll(`.nav-item`).forEach(e=>{e.classList.toggle(`active`,e.dataset.hash===t)})}`serviceWorker`in navigator&&window.addEventListener(`load`,()=>{navigator.serviceWorker.register(`/Life-os/sw.js`).catch(()=>{})}),Oe(),Ee(),ne();
