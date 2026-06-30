@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  base: '/life-os/',
+  base: '/Life-os/',
   build: {
     outDir: 'dist'
   },
