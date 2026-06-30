@@ -3,6 +3,7 @@ import { navigate } from '../router.js';
 import { toast } from '../components/Toast.js';
 import { openModal, closeModal } from '../components/Modal.js';
 import { analyzeLife, getApiKey, setApiKey, clearAiCache } from '../ai/advisor.js';
+import { getUpcomingBirthdays, requestNotificationPermission, getNotificationPermission } from '../notifications.js';
 
 function formatDate() {
   const days = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
@@ -90,6 +91,8 @@ export class DashboardPage {
           <button class="icon-btn" id="settings-btn" title="Настройки">⚙️</button>
         </div>
       </div>
+
+      ${this.renderBirthdayBanner()}
 
       <div class="ai-card" id="ai-card">
         <div class="ai-card-header">
@@ -197,6 +200,32 @@ export class DashboardPage {
     return el;
   }
 
+  renderBirthdayBanner() {
+    const upcoming = getUpcomingBirthdays(7);
+    if (!upcoming.length) return '';
+
+    return upcoming.map(f => {
+      const isToday = f.daysLeft === 0;
+      const isTomorrow = f.daysLeft === 1;
+      const label = isToday
+        ? `Сегодня день рождения!`
+        : isTomorrow
+          ? `Завтра день рождения`
+          : `Через ${f.daysLeft} дня день рождения`;
+      const age = f.age !== null ? ` · исполняется ${f.age + 1} лет` : '';
+      return `
+        <div class="birthday-banner ${isToday ? 'birthday-today' : ''}" data-nav="#/friends">
+          <span class="birthday-icon">🎂</span>
+          <div class="birthday-info">
+            <div class="birthday-name">${f.name}</div>
+            <div class="birthday-sub">${label}${age}</div>
+          </div>
+          ${isToday ? '<span class="birthday-tag">Поздравь!</span>' : ''}
+        </div>
+      `;
+    }).join('');
+  }
+
   renderTasks(tasks) {
     if (!tasks.length) return '';
     return tasks.map((t, i) => `
@@ -257,6 +286,7 @@ export class DashboardPage {
 
   openSettings() {
     const currentKey = getApiKey();
+    const notifPerm = getNotificationPermission();
     const body = document.createElement('div');
     body.innerHTML = `
       <div style="margin-bottom:20px;">
@@ -269,12 +299,39 @@ export class DashboardPage {
           value="${currentKey ? '••••••••••••' + currentKey.slice(-4) : ''}">
         ${currentKey ? `<div style="font-size:11px; color:var(--success); margin-top:6px;">✓ Ключ сохранён</div>` : ''}
       </div>
+      <div style="margin-bottom:20px;">
+        <div class="input-label" style="margin-bottom:6px;">Уведомления о ДР</div>
+        <div style="font-size:12px; color:var(--text-secondary); margin-bottom:10px;">
+          Браузер уведомит о днях рождения друзей за 3 дня
+        </div>
+        ${notifPerm === 'granted'
+          ? `<div style="font-size:13px; color:var(--success);">✓ Уведомления включены</div>`
+          : notifPerm === 'denied'
+            ? `<div style="font-size:13px; color:var(--danger);">✕ Заблокированы в настройках браузера</div>`
+            : `<button class="btn btn-secondary btn-sm" id="enable-notif-btn">🔔 Включить уведомления</button>`
+        }
+      </div>
       <div>
         <div class="input-label" style="margin-bottom:6px;">Главный риск</div>
         <input class="input" id="risk-input" placeholder="Что может пойти не так..."
           value="${store.get('dashboard.main_risk') || ''}">
       </div>
     `;
+
+    body.querySelector('#enable-notif-btn')?.addEventListener('click', async () => {
+      const result = await requestNotificationPermission();
+      if (result === 'granted') {
+        toast('Уведомления включены ✓');
+        body.querySelector('#enable-notif-btn').replaceWith(
+          Object.assign(document.createElement('div'), {
+            style: 'font-size:13px; color:var(--success);',
+            textContent: '✓ Уведомления включены'
+          })
+        );
+      } else {
+        toast('Разрешение не дано');
+      }
+    });
     openModal({
       title: '⚙️ Настройки',
       content: body,

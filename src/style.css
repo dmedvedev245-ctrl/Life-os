@@ -561,6 +561,43 @@ textarea.input { resize: none; min-height: 80px; }
   margin-bottom: 20px;
 }
 
+/* Birthday banner */
+.birthday-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.3);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.birthday-banner:hover { background: rgba(245,158,11,0.14); }
+.birthday-banner.birthday-today {
+  background: rgba(239,68,68,0.08);
+  border-color: rgba(239,68,68,0.35);
+  animation: pulse-border 2s infinite;
+}
+@keyframes pulse-border {
+  0%, 100% { border-color: rgba(239,68,68,0.35); }
+  50% { border-color: rgba(239,68,68,0.7); }
+}
+.birthday-icon { font-size: 24px; flex-shrink: 0; }
+.birthday-info { flex: 1; }
+.birthday-name { font-size: 14px; font-weight: 700; color: var(--text); }
+.birthday-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.birthday-tag {
+  background: var(--danger);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
 .icon-btn {
   background: var(--surface);
   border: 1px solid var(--border);
