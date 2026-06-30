@@ -56,6 +56,7 @@ ul, ol { list-style: none; }
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
   position: relative;
   padding-bottom: var(--nav-height);
 }
