@@ -13,23 +13,37 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-const { data: { user } } = await supabase.auth.getUser();
+async function init() {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
 
-if (user) {
-  const cloudData = await loadFromCloud();
-  if (cloudData) localStorage.setItem('life_os', JSON.stringify(cloudData));
-  renderNav();
-  initRouter();
-  checkBirthdayNotifications();
-  checkInboxReminders();
-  setInterval(checkInboxReminders, 60000);
-} else {
-  initRouter();
-  navigate('#/auth');
-}
-
-supabase.auth.onAuthStateChange((event) => {
-  if (event === 'SIGNED_OUT') {
+    if (user) {
+      try {
+        const cloudData = await loadFromCloud();
+        if (cloudData) localStorage.setItem('life_os', JSON.stringify(cloudData));
+      } catch (e) {
+        console.warn('Cloud sync failed, using local data');
+      }
+      renderNav();
+      initRouter();
+      checkBirthdayNotifications();
+      checkInboxReminders();
+      setInterval(checkInboxReminders, 60000);
+    } else {
+      initRouter();
+      navigate('#/auth');
+    }
+  } catch (e) {
+    console.error('Init error:', e);
+    initRouter();
     navigate('#/auth');
   }
-});
+
+  supabase.auth.onAuthStateChange((event) => {
+    if (event === 'SIGNED_OUT') {
+      navigate('#/auth');
+    }
+  });
+}
+
+init();
