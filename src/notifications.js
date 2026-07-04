@@ -115,6 +115,58 @@ export async function checkInboxReminders() {
   }
 }
 
+function daysUntilDate(dateStr) {
+  if (!dateStr) return null;
+  return Math.ceil((new Date(dateStr) - new Date()) / 86400000);
+}
+
+function fmtAmount(n) { return Number(n || 0).toLocaleString('ru') + ' ₽'; }
+
+export async function checkPaymentNotifications() {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+  const today = getTodayStr();
+  const lastChecked = localStorage.getItem('life_os_pay_checked');
+  if (lastChecked === today) return;
+  localStorage.setItem('life_os_pay_checked', today);
+
+  const data = store.get('finance') || {};
+  const cards = data.cards || [];
+  const debts = data.debts || [];
+  const todayNum = new Date().getDate();
+
+  const alerts = [];
+
+  cards.forEach(c => {
+    if (!c.grace_period_end || !c.debt) return;
+    const days = daysUntilDate(c.grace_period_end);
+    if (days !== null && days >= 0 && days <= 3) {
+      alerts.push({ name: c.bank, days, amount: c.debt, tag: `pay-card-${c.bank}-${today}` });
+    }
+  });
+
+  debts.forEach(d => {
+    if (!d.payment_day || !d.monthly_payment) return;
+    let diff = d.payment_day - todayNum;
+    if (diff < 0) diff += new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+    if (diff <= 2) {
+      alerts.push({ name: d.creditor, days: diff, amount: d.monthly_payment, tag: `pay-debt-${d.creditor}-${today}` });
+    }
+  });
+
+  for (const p of alerts) {
+    const title = p.days === 0
+      ? `⚠️ Сегодня платёж — ${p.name}`
+      : `💳 Платёж через ${p.days} ${p.days === 1 ? 'день' : 'дня'} — ${p.name}`;
+    new Notification(title, {
+      body: `Сумма: ${fmtAmount(p.amount)}`,
+      icon: '/Life-os/favicon.svg',
+      badge: '/Life-os/favicon.svg',
+      tag: p.tag,
+    });
+  }
+}
+
 export async function requestNotificationPermission() {
   if (!('Notification' in window)) return 'unsupported';
   if (Notification.permission === 'granted') return 'granted';

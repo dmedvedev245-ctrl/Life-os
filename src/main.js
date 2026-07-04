@@ -1,7 +1,7 @@
 import './style.css';
 import { renderNav } from './components/Nav.js';
 import { initRouter, navigate } from './router.js';
-import { checkBirthdayNotifications, checkInboxReminders } from './notifications.js';
+import { checkBirthdayNotifications, checkInboxReminders, checkPaymentNotifications } from './notifications.js';
 import { supabase, loadFromCloud } from './supabase.js';
 
 const savedTheme = localStorage.getItem('life_os_theme');
@@ -27,6 +27,7 @@ async function init() {
       renderNav();
       initRouter();
       checkBirthdayNotifications();
+      checkPaymentNotifications();
       checkInboxReminders();
       setInterval(checkInboxReminders, 60000);
     } else {
