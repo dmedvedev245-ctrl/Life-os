@@ -37,6 +37,16 @@ export async function loadFromCloud() {
   return data?.data ?? null;
 }
 
+export async function savePushSubscription(subscription) {
+  const user = await getCurrentUser();
+  if (!user) return;
+  const json = subscription.toJSON();
+  await supabase.from('push_subscriptions').upsert(
+    { user_id: user.id, endpoint: json.endpoint, keys: json.keys, updated_at: new Date().toISOString() },
+    { onConflict: 'user_id' }
+  );
+}
+
 export async function signOut() {
   await supabase.auth.signOut();
   localStorage.removeItem('life_os');
