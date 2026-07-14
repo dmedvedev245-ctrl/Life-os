@@ -7,7 +7,9 @@ const SECTIONS = [
   { hash: '#/health', icon: '🏃', title: 'Здоровье', desc: 'Сон, вес, энергия' },
   { hash: '#/habits', icon: '✅', title: 'Привычки', desc: 'Ежедневные ритуалы' },
   { hash: '#/weekly', icon: '📋', title: 'Обзор недели', desc: 'Рефлексия и план' },
-  { hash: '#/stats', icon: '📊', title: 'Статистика', desc: 'Графики и тренды' }
+  { hash: '#/stats', icon: '📊', title: 'Статистика', desc: 'Графики и тренды' },
+  { hash: '#/planner', icon: '🕐', title: 'Расписание', desc: 'Блоки по дням и времени' },
+  { hash: '#/debtplan', icon: '🔥', title: 'План погашения', desc: 'Лавина: когда будешь чист' }
 ];
 
 export class MorePage {

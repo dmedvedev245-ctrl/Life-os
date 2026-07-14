@@ -14,7 +14,7 @@ function getTodayStr() {
 }
 
 function buildContext(data) {
-  const { finance, work, health, goals, relations, friends, habits, inbox } = data;
+  const { finance, work, health, goals, relations, friends, habits, inbox, planner, debt_plan } = data;
 
   const totalDebt = [
     ...(finance.cards || []).map(c => c.debt || 0),
@@ -35,6 +35,20 @@ function buildContext(data) {
     return days > 30;
   }).length;
 
+  const debtPlanBudget = debt_plan?.budget || 0;
+  const monthKey = new Date().toISOString().slice(0, 7);
+  const debtPlanPaidThisMonth = (debt_plan?.payments || [])
+    .filter(p => p.date && p.date.startsWith(monthKey))
+    .reduce((s, p) => s + (p.amount || 0), 0);
+
+  const todayDayIndex = (new Date().getDay() + 6) % 7;
+  const todayBlocks = (planner?.blocks || [])
+    .filter(b => b.day === todayDayIndex)
+    .sort((a, b) => a.start.localeCompare(b.start));
+  const todayBlocksStr = todayBlocks.length
+    ? todayBlocks.map(b => `${b.start} ${b.title}`).join(', ')
+    : 'не запланировано';
+
   return `Данные пользователя:
 - Общий долг: ${totalDebt.toLocaleString('ru')} руб.
 ${urgentCard ? `- Срочная карта: ${urgentCard.bank}, льготный период до ${urgentCard.grace_period_end}` : ''}
@@ -44,6 +58,8 @@ ${urgentCard ? `- Срочная карта: ${urgentCard.bank}, льготны�
 - Inbox: ${inboxCount} необработанных записей
 - Друзей давно не видел: ${longLostFriends}
 - Следующее свидание: ${relations.next_date || 'не запланировано'}
+- План погашения долгов: бюджет ${debtPlanBudget.toLocaleString('ru')} руб./мес, внесено в этом месяце ${debtPlanPaidThisMonth.toLocaleString('ru')} руб.
+- Расписание на сегодня: ${todayBlocksStr}
 
 Ответь кратко на русском языке в формате JSON:
 {

@@ -12,6 +12,8 @@ import { WeeklyPage } from './pages/Weekly.js';
 import { SearchPage } from './pages/Search.js';
 import { StatsPage } from './pages/Stats.js';
 import { AuthPage } from './pages/Auth.js';
+import { DebtPlanPage } from './pages/DebtPlan.js';
+import { PlannerPage } from './pages/Planner.js';
 
 const ROUTES = {
   '#/auth': AuthPage,
@@ -27,7 +29,9 @@ const ROUTES = {
   '#/friends': FriendsPage,
   '#/weekly': WeeklyPage,
   '#/search': SearchPage,
-  '#/stats': StatsPage
+  '#/stats': StatsPage,
+  '#/debtplan': DebtPlanPage,
+  '#/planner': PlannerPage
 };
 
 const NAV_ORDER = ['#/dashboard', '#/finance', '#/inbox', '#/goals', '#/more'];

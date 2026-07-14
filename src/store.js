@@ -47,7 +47,9 @@ const DEFAULT = {
   friends: [],
   health: { logs: [] },
   habits: [],
-  weekly: []
+  weekly: [],
+  planner: { blocks: [] },
+  debt_plan: { budget: 0, payments: [] }
 };
 
 function deepMerge(target, source) {
