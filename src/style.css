@@ -33,7 +33,10 @@ html {
 }
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
-  background: var(--bg);
+  /* iOS standalone PWA leaves a sliver below the bottom nav that no viewport unit
+     can reach — match the nav's surface color here so it blends in instead of
+     reading as a stray black bar. */
+  background: var(--surface);
   color: var(--text);
   min-height: 100%;
   min-height: -webkit-fill-available;
