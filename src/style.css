@@ -28,7 +28,9 @@
 html {
   height: 100%;
   height: -webkit-fill-available;
-  background: var(--bg);
+  /* see body's comment below — matches the bottom nav so the unreachable
+     iOS standalone sliver blends in instead of showing as a black bar */
+  background: var(--surface);
   touch-action: manipulation;
 }
 body {
