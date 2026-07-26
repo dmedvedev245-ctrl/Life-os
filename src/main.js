@@ -8,6 +8,15 @@ import { ensurePushSubscription } from './push.js';
 const savedTheme = localStorage.getItem('life_os_theme');
 if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
 
+// iOS standalone PWA reports 100vh/100dvh shorter than the real screen height,
+// leaving a gap of body background below the bottom nav — use the real window height instead.
+function setAppHeight() {
+  document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
+}
+setAppHeight();
+window.addEventListener('resize', setAppHeight);
+window.visualViewport?.addEventListener('resize', setAppHeight);
+
 // iOS Safari ignores viewport user-scalable=no since iOS 16 — block zoom gestures in JS instead
 document.addEventListener('gesturestart', e => e.preventDefault());
 document.addEventListener('gesturechange', e => e.preventDefault());

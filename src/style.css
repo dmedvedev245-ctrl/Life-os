@@ -54,8 +54,8 @@ ul, ol { list-style: none; }
 #app {
   display: flex;
   flex-direction: column;
-  height: 100vh;
   height: 100dvh;
+  height: var(--app-height, 100dvh);
   max-width: 480px;
   margin: 0 auto;
   position: relative;
