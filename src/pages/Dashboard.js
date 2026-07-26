@@ -93,6 +93,7 @@ export class DashboardPage {
         </div>
         <div style="display:flex; gap:6px; align-items:center;">
           <button class="icon-btn" id="search-btn" title="Поиск">🔍</button>
+          <button class="icon-btn" id="dictate-btn" title="Надиктовать">🎙️</button>
           <button class="icon-btn" id="ai-refresh-btn" title="Обновить совет ИИ">✨</button>
           <button class="icon-btn" id="settings-btn" title="Настройки">⚙️</button>
         </div>
@@ -195,6 +196,7 @@ export class DashboardPage {
     });
 
     el.querySelector('#search-btn').addEventListener('click', () => navigate('#/search'));
+    el.querySelector('#dictate-btn').addEventListener('click', () => navigate('#/dictate'));
     el.querySelector('#add-task-btn').addEventListener('click', () => this.addTask(el));
     el.querySelector('#ai-toggle').addEventListener('click', () => this.toggleAi(el));
     el.querySelector('#ai-refresh-btn').addEventListener('click', () => {

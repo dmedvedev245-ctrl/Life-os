@@ -14,6 +14,7 @@ import { StatsPage } from './pages/Stats.js';
 import { AuthPage } from './pages/Auth.js';
 import { DebtPlanPage } from './pages/DebtPlan.js';
 import { PlannerPage } from './pages/Planner.js';
+import { DictatePage } from './pages/Dictate.js';
 
 const ROUTES = {
   '#/auth': AuthPage,
@@ -31,7 +32,8 @@ const ROUTES = {
   '#/search': SearchPage,
   '#/stats': StatsPage,
   '#/debtplan': DebtPlanPage,
-  '#/planner': PlannerPage
+  '#/planner': PlannerPage,
+  '#/dictate': DictatePage
 };
 
 const NAV_ORDER = ['#/dashboard', '#/finance', '#/inbox', '#/habits', '#/more'];
