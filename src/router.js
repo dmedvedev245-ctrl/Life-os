@@ -34,7 +34,7 @@ const ROUTES = {
   '#/planner': PlannerPage
 };
 
-const NAV_ORDER = ['#/dashboard', '#/finance', '#/inbox', '#/goals', '#/more'];
+const NAV_ORDER = ['#/dashboard', '#/finance', '#/inbox', '#/habits', '#/more'];
 
 let currentHash = '';
 const container = document.getElementById('page-container');

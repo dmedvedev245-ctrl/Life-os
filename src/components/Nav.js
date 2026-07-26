@@ -4,7 +4,7 @@ const NAV_ITEMS = [
   { hash: '#/dashboard', icon: '🏠', label: 'Главная' },
   { hash: '#/finance', icon: '💰', label: 'Финансы' },
   { hash: 'fab', icon: '+', label: '' },
-  { hash: '#/goals', icon: '🎯', label: 'Цели' },
+  { hash: '#/habits', icon: '✅', label: 'Привычки' },
   { hash: '#/more', icon: '☰', label: 'Ещё' }
 ];
 

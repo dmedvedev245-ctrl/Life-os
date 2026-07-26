@@ -1,11 +1,11 @@
 import { navigate } from '../router.js';
 
 const SECTIONS = [
+  { hash: '#/goals', icon: '🎯', title: 'Цели', desc: 'Главная цель и подцели' },
   { hash: '#/work', icon: '💼', title: 'Работа', desc: 'Продажи и идеи' },
   { hash: '#/relations', icon: '❤️', title: 'Отношения', desc: 'Свидания и планы' },
   { hash: '#/friends', icon: '👥', title: 'Друзья', desc: 'Контакты и общение' },
   { hash: '#/health', icon: '🏃', title: 'Здоровье', desc: 'Сон, вес, энергия' },
-  { hash: '#/habits', icon: '✅', title: 'Привычки', desc: 'Ежедневные ритуалы' },
   { hash: '#/weekly', icon: '📋', title: 'Обзор недели', desc: 'Рефлексия и план' },
   { hash: '#/stats', icon: '📊', title: 'Статистика', desc: 'Графики и тренды' },
   { hash: '#/planner', icon: '🕐', title: 'Расписание', desc: 'Блоки по дням и времени' },
